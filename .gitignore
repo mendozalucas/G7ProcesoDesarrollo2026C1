@@ -1,18 +1,8 @@
-# Maven / Java
-target/
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
-pom.xml.next
-release.properties
-dependency-reduced-pom.xml
-buildNumber.properties
-.mvn/timing.properties
-.mvn/wrapper/maven-wrapper.jar
-
-# Compilación manual / salidas locales
-out/
-bin/
+# Maven / Java (backend)
+backend/target/
+backend/data/
+backend/out/
+backend/bin/
 *.class
 *.jar
 *.war
@@ -20,13 +10,17 @@ bin/
 hs_err_pid*
 replay_pid*
 
-# Archivos temporales del proyecto
+# Node (frontend)
+frontend/node_modules/
+frontend/dist/
+
+# Compilación manual / salidas locales
 compile-sources.txt
 
 # IDE — Eclipse
-.classpath
-.project
-.settings/
+backend/.classpath
+backend/.project
+backend/.settings/
 .factorypath
 
 # IDE — IntelliJ
@@ -35,7 +29,7 @@ compile-sources.txt
 *.iml
 *.ipr
 
-# IDE — VS Code / Cursor (rutas locales de JDK, etc.)
+# IDE — VS Code / Cursor
 .vscode/
 .cursor/
 
@@ -55,7 +49,7 @@ Desktop.ini
 *.log
 logs/
 
-# H2 database (persistencia local)
+# H2 database (persistencia local, raíz legacy)
 data/
 
 # Spring Boot / configuración local con secretos

@@ -1,12 +1,12 @@
 package com.escrims.presentation.api;
 
-import com.escrims.application.dto.CreateScrimDTO;
 import com.escrims.application.dto.EstadisticaDTO;
 import com.escrims.application.dto.ScrimResponseDTO;
 import com.escrims.application.usecases.*;
 import com.escrims.domain.valueobjects.LadoEquipo;
 import com.escrims.domain.valueobjects.RolJuego;
 import com.escrims.presentation.api.dto.*;
+import com.escrims.presentation.api.mapper.ScrimRequestMapper;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -69,8 +69,8 @@ public class ScrimController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Map<String, UUID> crear(@RequestBody CreateScrimDTO dto) {
-        return Map.of("id", createScrimUseCase.execute(dto));
+    public Map<String, UUID> crear(@RequestBody CreateScrimRequest request) {
+        return Map.of("id", createScrimUseCase.execute(ScrimRequestMapper.toCommand(request)));
     }
 
     @PostMapping("/{id}/postulaciones")
