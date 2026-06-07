@@ -17,5 +17,10 @@ public class EnJuegoState implements ScrimState {
     }
 
     @Override
+    public void finalizar(Scrim scrim) {
+        avanzar(scrim);
+    }
+
+    @Override
     public String getNombreEstado() { return "EN_JUEGO"; }
 }

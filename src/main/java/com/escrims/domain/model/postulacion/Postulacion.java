@@ -5,6 +5,7 @@ import com.escrims.domain.model.scrim.Scrim;
 import com.escrims.domain.model.usuario.Usuario;
 import com.escrims.domain.state.postulacion.PendientePostulacionState;
 import com.escrims.domain.state.postulacion.PostulacionState;
+import com.escrims.domain.state.postulacion.PostulacionStateFactory;
 import com.escrims.domain.valueobjects.RolJuego;
 
 import java.time.LocalDateTime;
@@ -81,4 +82,25 @@ public class Postulacion {
     public UUID getScrimId() { return scrimId; }
     public RolJuego getRolDeseado() { return rolDeseado; }
     public LocalDateTime getFechaPostulacion() { return fechaPostulacion; }
+
+    public static Postulacion reconstituir(UUID id, UUID usuarioId, UUID scrimId,
+                                           RolJuego rolDeseado, String estadoNombre,
+                                           LocalDateTime fechaPostulacion) {
+        Postulacion p = new Postulacion(id, usuarioId, scrimId, rolDeseado,
+                PostulacionStateFactory.para(estadoNombre), fechaPostulacion);
+        return p;
+    }
+
+    private Postulacion(UUID id, UUID usuarioId, UUID scrimId, RolJuego rolDeseado,
+                          PostulacionState estado, LocalDateTime fechaPostulacion) {
+        this.id = id;
+        this.usuarioId = usuarioId;
+        this.scrimId = scrimId;
+        this.usuario = null;
+        this.scrim = null;
+        this.rolDeseado = rolDeseado;
+        this.currentState = estado;
+        this.fechaPostulacion = fechaPostulacion;
+        this.domainEvents = new ArrayList<>();
+    }
 }

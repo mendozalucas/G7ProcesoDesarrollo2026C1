@@ -8,11 +8,15 @@ import com.escrims.domain.observer.DomainEventBus;
 import com.escrims.domain.repository.ScrimRepository;
 import com.escrims.domain.valueobjects.FormatoScrim;
 import com.escrims.domain.valueobjects.Latencia;
+import com.escrims.domain.valueobjects.Modalidad;
+import com.escrims.domain.valueobjects.ModalidadFactory;
 import com.escrims.domain.valueobjects.Region;
+import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.UUID;
 
+@Service
 public class CreateScrimUseCase {
 
     private final ScrimRepository scrimRepository;
@@ -32,12 +36,19 @@ public class CreateScrimUseCase {
                 .conLatenciaMax(new Latencia(dto.getLatenciaMaxMs()))
                 .conFechaHora(dto.getFechaHora())
                 .conDuracion(Duration.ofMinutes(dto.getDuracionMinutos()))
-                .enModalidad(dto.getModalidad())
+                .enModalidad(resolverModalidad(dto))
                 .creadoPor(dto.getOrganizadorId())
                 .build();
 
         scrimRepository.save(scrim);
         eventBus.publicarTodos(scrim.recolectarEventos());
         return scrim.getId();
+    }
+
+    private Modalidad resolverModalidad(CreateScrimDTO dto) {
+        if (dto.getModalidad() != null) {
+            return dto.getModalidad();
+        }
+        return ModalidadFactory.para(dto.getModalidadNombre());
     }
 }

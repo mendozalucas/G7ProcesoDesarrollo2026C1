@@ -19,4 +19,6 @@ public abstract class DomainEvent {
 
     public UUID getEventId() { return eventId; }
     public LocalDateTime getOccurredOn() { return occurredOn; }
+
+    public abstract void aceptar(DomainEventVisitor visitor);
 }

@@ -15,4 +15,9 @@ public class ReporteConductaRegistradoEvent extends DomainEvent {
 
     public UUID getReporteId() { return reporteId; }
     public UUID getReportadoId() { return reportadoId; }
+
+    @Override
+    public void aceptar(DomainEventVisitor visitor) {
+        visitor.visit(this);
+    }
 }

@@ -3,9 +3,8 @@ package com.escrims.domain.model.scrim;
 import com.escrims.domain.events.DomainEvent;
 import com.escrims.domain.events.ScrimCreadoEvent;
 import com.escrims.domain.model.juego.Juego;
-import com.escrims.domain.state.BuscandoJugadoresState;
-import com.escrims.domain.state.LobbyArmadoState;
 import com.escrims.domain.state.ScrimState;
+import com.escrims.domain.state.ScrimStateFactory;
 import com.escrims.domain.valueobjects.*;
 
 import java.time.Duration;
@@ -37,59 +36,24 @@ public class Scrim {
           LocalDateTime fechaHora, Duration duracionEstimada,
           Modalidad modalidad, Map<RolJuego, Integer> reglasRoles,
           UUID organizadorId) {
-        this.id = id;
-        this.juego = juego;
-        this.formato = formato;
-        this.region = region;
-        this.rangosPermitidos = rangosPermitidos;
-        this.latenciaMax = latenciaMax;
-        this.fechaHora = fechaHora;
-        this.duracionEstimada = duracionEstimada;
-        this.modalidad = modalidad;
-        this.reglasRoles = Collections.unmodifiableMap(new HashMap<>(reglasRoles));
-        this.organizadorId = organizadorId;
-        this.equipos = new ArrayList<>(List.of(
-                new Equipo(LadoEquipo.EQUIPO_A),
-                new Equipo(LadoEquipo.EQUIPO_B)
-        ));
-        this.confirmaciones = new ArrayList<>();
-        this.domainEvents = new ArrayList<>();
-        this.currentState = new BuscandoJugadoresState();
-        this.domainEvents.add(new ScrimCreadoEvent(id, juego.getNombre(), region, formato, fechaHora));
+        this(id, juego, formato, region, rangosPermitidos, latenciaMax, fechaHora,
+                duracionEstimada, modalidad, reglasRoles, organizadorId, true);
     }
 
     public void agregarJugador(UUID usuarioId, LadoEquipo lado, RolJuego rol) {
-        if (!(currentState instanceof BuscandoJugadoresState)) {
-            throw new IllegalStateException("Solo se pueden agregar jugadores mientras se buscan participantes");
-        }
-        agregarParticipanteInterno(usuarioId, lado, rol);
-        if (estaCompleto()) {
-            currentState.avanzar(this);
-        }
+        currentState.agregarJugador(this, usuarioId, lado, rol);
     }
 
     public void confirmarParticipacion(UUID usuarioId) {
-        if (!(currentState instanceof LobbyArmadoState)) {
-            throw new IllegalStateException("Solo se puede confirmar con el lobby armado");
-        }
-        confirmarParticipanteInterno(usuarioId);
-        if (todosConfirmaron()) {
-            currentState.avanzar(this);
-        }
+        currentState.confirmarParticipacion(this, usuarioId);
     }
 
     public void iniciar() {
-        if (!(currentState instanceof com.escrims.domain.state.ConfirmadoState)) {
-            throw new IllegalStateException("Solo se puede iniciar un scrim confirmado");
-        }
-        currentState.avanzar(this);
+        currentState.iniciar(this);
     }
 
     public void finalizar() {
-        if (!(currentState instanceof com.escrims.domain.state.EnJuegoState)) {
-            throw new IllegalStateException("Solo se puede finalizar un scrim en juego");
-        }
-        currentState.avanzar(this);
+        currentState.finalizar(this);
     }
 
     public void cancelar(String motivo) {
@@ -113,8 +77,7 @@ public class Scrim {
     }
 
     public boolean permiteModificarRoles() {
-        return currentState instanceof BuscandoJugadoresState
-                || currentState instanceof LobbyArmadoState;
+        return currentState.permiteModificarRoles();
     }
 
     public int getCuposDisponibles() {
@@ -131,13 +94,13 @@ public class Scrim {
     public void cambiarEstado(ScrimState nuevoEstado) { this.currentState = nuevoEstado; }
     public void agregarEvento(DomainEvent event) { this.domainEvents.add(event); }
 
-    void agregarParticipanteInterno(UUID usuarioId, LadoEquipo lado, RolJuego rol) {
+    public void agregarParticipanteInterno(UUID usuarioId, LadoEquipo lado, RolJuego rol) {
         equipos.stream().filter(e -> e.getLado().equals(lado)).findFirst()
                .ifPresent(e -> e.agregarParticipante(usuarioId, rol));
         confirmaciones.add(new Confirmacion(usuarioId));
     }
 
-    void confirmarParticipanteInterno(UUID usuarioId) {
+    public void confirmarParticipanteInterno(UUID usuarioId) {
         confirmaciones.stream()
                 .filter(c -> c.getUsuarioId().equals(usuarioId) && c.esPendiente())
                 .findFirst().ifPresent(Confirmacion::confirmar);
@@ -165,4 +128,50 @@ public class Scrim {
     public List<Confirmacion> getConfirmaciones() { return Collections.unmodifiableList(confirmaciones); }
     public String getMotivoCancelacion() { return motivoCancelacion != null ? motivoCancelacion : ""; }
     public ScrimState getCurrentState() { return currentState; }
+
+    public static Scrim reconstituir(UUID id, Juego juego, FormatoScrim formato, Region region,
+                                     RangosPermitidos rangosPermitidos, Latencia latenciaMax,
+                                     LocalDateTime fechaHora, Duration duracionEstimada,
+                                     Modalidad modalidad, Map<RolJuego, Integer> reglasRoles,
+                                     UUID organizadorId, String estadoNombre,
+                                     String motivoCancelacion, List<Equipo> equiposRestaurados,
+                                     List<Confirmacion> confirmacionesRestauradas) {
+        Scrim scrim = new Scrim(id, juego, formato, region, rangosPermitidos, latenciaMax,
+                fechaHora, duracionEstimada, modalidad, reglasRoles, organizadorId, false);
+        scrim.currentState = ScrimStateFactory.para(estadoNombre);
+        scrim.motivoCancelacion = motivoCancelacion;
+        scrim.equipos.clear();
+        scrim.equipos.addAll(equiposRestaurados);
+        scrim.confirmaciones.clear();
+        scrim.confirmaciones.addAll(confirmacionesRestauradas);
+        return scrim;
+    }
+
+    private Scrim(UUID id, Juego juego, FormatoScrim formato, Region region,
+                  RangosPermitidos rangosPermitidos, Latencia latenciaMax,
+                  LocalDateTime fechaHora, Duration duracionEstimada,
+                  Modalidad modalidad, Map<RolJuego, Integer> reglasRoles,
+                  UUID organizadorId, boolean emitirEventoCreacion) {
+        this.id = id;
+        this.juego = juego;
+        this.formato = formato;
+        this.region = region;
+        this.rangosPermitidos = rangosPermitidos;
+        this.latenciaMax = latenciaMax;
+        this.fechaHora = fechaHora;
+        this.duracionEstimada = duracionEstimada;
+        this.modalidad = modalidad;
+        this.reglasRoles = Collections.unmodifiableMap(new HashMap<>(reglasRoles));
+        this.organizadorId = organizadorId;
+        this.equipos = new ArrayList<>(List.of(
+                new Equipo(LadoEquipo.EQUIPO_A),
+                new Equipo(LadoEquipo.EQUIPO_B)
+        ));
+        this.confirmaciones = new ArrayList<>();
+        this.domainEvents = new ArrayList<>();
+        this.currentState = new com.escrims.domain.state.BuscandoJugadoresState();
+        if (emitirEventoCreacion) {
+            this.domainEvents.add(new ScrimCreadoEvent(id, juego.getNombre(), region, formato, fechaHora));
+        }
+    }
 }

@@ -15,6 +15,8 @@ public interface UsuarioRepository {
 
     Optional<Usuario> findByUsername(String username);
 
+    Optional<Usuario> findByCredencialOAuth(String proveedorNombre, String externalId);
+
     List<Usuario> findCandidatosParaScrim(Scrim scrim);
 
     Usuario save(Usuario usuario);

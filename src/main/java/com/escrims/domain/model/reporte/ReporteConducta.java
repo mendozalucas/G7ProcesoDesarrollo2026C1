@@ -1,6 +1,7 @@
 package com.escrims.domain.model.reporte;
 
 import com.escrims.domain.strategy.sancion.SancionEstrategia;
+import com.escrims.domain.strategy.sancion.SancionFactory;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -23,13 +24,21 @@ public class ReporteConducta {
     private final LocalDateTime fechaReporte;
 
     public ReporteConducta(UUID scrimId, UUID reportanteId, UUID reportadoId, String motivo) {
-        this.id = UUID.randomUUID();
+        this(UUID.randomUUID(), scrimId, reportanteId, reportadoId, motivo,
+                "PENDIENTE", null, LocalDateTime.now());
+    }
+
+    private ReporteConducta(UUID id, UUID scrimId, UUID reportanteId, UUID reportadoId,
+                            String motivo, String estadoResolucion, SancionEstrategia sancion,
+                            LocalDateTime fechaReporte) {
+        this.id = id;
         this.scrimId = scrimId;
         this.reportanteId = reportanteId;
         this.reportadoId = reportadoId;
         this.motivo = motivo;
-        this.estadoResolucion = "PENDIENTE";
-        this.fechaReporte = LocalDateTime.now();
+        this.estadoResolucion = estadoResolucion;
+        this.sancion = sancion;
+        this.fechaReporte = fechaReporte;
     }
 
     public void asignarSancion(SancionEstrategia sancion) {
@@ -56,4 +65,12 @@ public class ReporteConducta {
     public String getEstadoResolucion() { return estadoResolucion; }
     public SancionEstrategia getSancion() { return sancion; }
     public LocalDateTime getFechaReporte() { return fechaReporte; }
+
+    public static ReporteConducta reconstituir(UUID id, UUID scrimId, UUID reportanteId,
+                                                UUID reportadoId, String motivo,
+                                                String estadoResolucion, String sancionTipo,
+                                                LocalDateTime fechaReporte) {
+        return new ReporteConducta(id, scrimId, reportanteId, reportadoId, motivo,
+                estadoResolucion, SancionFactory.para(sancionTipo), fechaReporte);
+    }
 }

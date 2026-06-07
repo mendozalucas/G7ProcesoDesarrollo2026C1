@@ -3,10 +3,12 @@ package com.escrims.application.usecases;
 import com.escrims.application.dto.EstadisticaDTO;
 import com.escrims.domain.services.ScrimLifecycleService;
 import com.escrims.domain.services.StatisticsService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
+@Service
 public class FinalizeScrimUseCase {
 
     private final ScrimLifecycleService lifecycleService;

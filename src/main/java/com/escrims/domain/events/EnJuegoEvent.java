@@ -12,4 +12,9 @@ public class EnJuegoEvent extends DomainEvent {
     }
 
     public UUID getScrimId() { return scrimId; }
+
+    @Override
+    public void aceptar(DomainEventVisitor visitor) {
+        visitor.visit(this);
+    }
 }

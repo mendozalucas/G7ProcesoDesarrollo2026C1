@@ -3,9 +3,11 @@ package com.escrims.application.usecases;
 import com.escrims.domain.model.reporte.ReporteConducta;
 import com.escrims.domain.repository.ReporteConductaRepository;
 import com.escrims.domain.services.ModerationService;
+import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+@Service
 public class ModerateReportUseCase {
 
     private final ModerationService moderationService;

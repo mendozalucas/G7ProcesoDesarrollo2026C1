@@ -16,4 +16,9 @@ public class NuevoScrimDisponibleEvent extends DomainEvent {
 
     public UUID getScrimId() { return scrimId; }
     public List<UUID> getUsuariosANotificar() { return usuariosANotificar; }
+
+    @Override
+    public void aceptar(DomainEventVisitor visitor) {
+        visitor.visit(this);
+    }
 }

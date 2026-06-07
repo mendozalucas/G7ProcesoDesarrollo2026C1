@@ -23,7 +23,14 @@ public class BusquedaFavorita {
 
     public BusquedaFavorita(UUID usuarioId, Juego juego, Rango rangoMinimo, Rango rangoMaximo,
                             Region region, DisponibilidadHoraria horarioPreferido, RolJuego rolBuscado) {
-        this.id = UUID.randomUUID();
+        this(UUID.randomUUID(), usuarioId, juego, rangoMinimo, rangoMaximo, region,
+                horarioPreferido, rolBuscado, false);
+    }
+
+    private BusquedaFavorita(UUID id, UUID usuarioId, Juego juego, Rango rangoMinimo,
+                             Rango rangoMaximo, Region region, DisponibilidadHoraria horarioPreferido,
+                             RolJuego rolBuscado, boolean alertaActiva) {
+        this.id = id;
         this.usuarioId = usuarioId;
         this.juego = juego;
         this.rangoMinimo = rangoMinimo;
@@ -31,7 +38,15 @@ public class BusquedaFavorita {
         this.region = region;
         this.horarioPreferido = horarioPreferido;
         this.rolBuscado = rolBuscado;
-        this.alertaActiva = false;
+        this.alertaActiva = alertaActiva;
+    }
+
+    public static BusquedaFavorita reconstituir(UUID id, UUID usuarioId, Juego juego,
+                                                Rango rangoMinimo, Rango rangoMaximo, Region region,
+                                                DisponibilidadHoraria horarioPreferido, RolJuego rolBuscado,
+                                                boolean alertaActiva) {
+        return new BusquedaFavorita(id, usuarioId, juego, rangoMinimo, rangoMaximo, region,
+                horarioPreferido, rolBuscado, alertaActiva);
     }
 
     public boolean coincideCon(Scrim scrim) {

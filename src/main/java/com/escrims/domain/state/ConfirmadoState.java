@@ -19,5 +19,10 @@ public class ConfirmadoState implements ScrimState {
     }
 
     @Override
+    public void iniciar(Scrim scrim) {
+        avanzar(scrim);
+    }
+
+    @Override
     public String getNombreEstado() { return "CONFIRMADO"; }
 }

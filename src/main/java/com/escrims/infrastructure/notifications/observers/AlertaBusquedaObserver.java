@@ -1,6 +1,7 @@
 package com.escrims.infrastructure.notifications.observers;
 
 import com.escrims.domain.events.DomainEvent;
+import com.escrims.domain.events.DomainEventVisitor;
 import com.escrims.domain.events.NuevoScrimDisponibleEvent;
 import com.escrims.domain.events.ScrimCreadoEvent;
 import com.escrims.domain.model.busqueda.BusquedaFavorita;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class AlertaBusquedaObserver implements IObserver {
+public class AlertaBusquedaObserver implements IObserver, DomainEventVisitor {
 
     private final List<BusquedaFavorita> busquedasFavoritas;
     private final BusquedaFavoritaRepository busquedaRepository;
@@ -31,8 +32,11 @@ public class AlertaBusquedaObserver implements IObserver {
 
     @Override
     public void onEvent(DomainEvent event) {
-        if (!(event instanceof ScrimCreadoEvent)) return;
-        ScrimCreadoEvent e = (ScrimCreadoEvent) event;
+        event.aceptar(this);
+    }
+
+    @Override
+    public void visit(ScrimCreadoEvent e) {
         scrimRepository.findById(e.getScrimId()).ifPresent(scrim -> {
             List<UUID> usuarios = busquedasFavoritas.stream()
                     .filter(BusquedaFavorita::isAlertaActiva)

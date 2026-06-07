@@ -55,6 +55,9 @@ Desktop.ini
 *.log
 logs/
 
+# H2 database (persistencia local)
+data/
+
 # Spring Boot / configuración local con secretos
 application-local.yml
 application-local.properties

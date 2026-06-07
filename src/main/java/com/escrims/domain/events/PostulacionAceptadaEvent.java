@@ -18,4 +18,9 @@ public class PostulacionAceptadaEvent extends DomainEvent {
     public UUID getPostulacionId() { return postulacionId; }
     public UUID getUsuarioId() { return usuarioId; }
     public UUID getScrimId() { return scrimId; }
+
+    @Override
+    public void aceptar(DomainEventVisitor visitor) {
+        visitor.visit(this);
+    }
 }

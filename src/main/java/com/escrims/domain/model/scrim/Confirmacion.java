@@ -11,9 +11,14 @@ public class Confirmacion {
     private LocalDateTime fechaConfirmacion;
 
     public Confirmacion(UUID usuarioId) {
-        this.id = UUID.randomUUID();
+        this(UUID.randomUUID(), usuarioId, false, null);
+    }
+
+    private Confirmacion(UUID id, UUID usuarioId, boolean confirmado, LocalDateTime fechaConfirmacion) {
+        this.id = id;
         this.usuarioId = usuarioId;
-        this.confirmado = false;
+        this.confirmado = confirmado;
+        this.fechaConfirmacion = fechaConfirmacion;
     }
 
     public void confirmar() {
@@ -27,4 +32,10 @@ public class Confirmacion {
     public UUID getUsuarioId() { return usuarioId; }
     public boolean isConfirmado() { return confirmado; }
     public LocalDateTime getFechaConfirmacion() { return fechaConfirmacion; }
+
+    public static Confirmacion reconstituir(UUID id, UUID usuarioId, boolean confirmado,
+                                          LocalDateTime fechaConfirmacion) {
+        return new Confirmacion(id, usuarioId, confirmado,
+                confirmado ? fechaConfirmacion : null);
+    }
 }

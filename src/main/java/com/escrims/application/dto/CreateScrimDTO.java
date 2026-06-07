@@ -18,6 +18,7 @@ public class CreateScrimDTO {
     private LocalDateTime fechaHora;
     private int duracionMinutos;
     private Modalidad modalidad;
+    private String modalidadNombre;
     private UUID organizadorId;
 
     public CreateScrimDTO() {}
@@ -42,6 +43,8 @@ public class CreateScrimDTO {
     public void setDuracionMinutos(int v) { this.duracionMinutos = v; }
     public Modalidad getModalidad() { return modalidad; }
     public void setModalidad(Modalidad m) { this.modalidad = m; }
+    public String getModalidadNombre() { return modalidadNombre; }
+    public void setModalidadNombre(String modalidadNombre) { this.modalidadNombre = modalidadNombre; }
     public UUID getOrganizadorId() { return organizadorId; }
     public void setOrganizadorId(UUID id) { this.organizadorId = id; }
 }

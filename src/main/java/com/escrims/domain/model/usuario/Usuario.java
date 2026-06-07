@@ -122,6 +122,17 @@ public class Usuario {
         perfilesJuego.add(perfil);
     }
 
+    public void reemplazarDisponibilidad(List<DisponibilidadHoraria> horarios) {
+        disponibilidad.clear();
+        if (horarios != null) {
+            disponibilidad.addAll(horarios);
+        }
+    }
+
+    public void agregarDisponibilidad(DisponibilidadHoraria horario) {
+        disponibilidad.add(horario);
+    }
+
     public void agregarBusquedaFavorita(BusquedaFavorita busqueda) {
         busquedasFavoritas.add(busqueda);
     }
@@ -132,7 +143,22 @@ public class Usuario {
     }
 
     public void actualizarPreferencias(PreferenciasUsuario preferencias) { this.preferencias = preferencias; }
+    public void actualizarUsername(String username) {
+        if (username != null && !username.isBlank()) {
+            this.username = username;
+        }
+    }
     public void promoverA(RolSistema nuevoRol) { this.rol = nuevoRol; }
+
+    public void restaurarEstadoPersistido(boolean verificado, RolSistema rol,
+                                          int strikes, LocalDateTime cooldownHasta) {
+        if (verificado) {
+            this.verificado = true;
+        }
+        this.rol = rol;
+        this.strikes = strikes;
+        this.cooldownHasta = cooldownHasta;
+    }
 
     public UUID getId() { return id; }
     public String getUsername() { return username; }

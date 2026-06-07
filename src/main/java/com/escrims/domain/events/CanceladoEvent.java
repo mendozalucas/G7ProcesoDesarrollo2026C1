@@ -15,4 +15,9 @@ public class CanceladoEvent extends DomainEvent {
 
     public UUID getScrimId() { return scrimId; }
     public String getMotivo() { return motivo; }
+
+    @Override
+    public void aceptar(DomainEventVisitor visitor) {
+        visitor.visit(this);
+    }
 }

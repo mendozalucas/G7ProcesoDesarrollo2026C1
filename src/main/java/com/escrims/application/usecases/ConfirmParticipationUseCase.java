@@ -1,9 +1,11 @@
 package com.escrims.application.usecases;
 
 import com.escrims.domain.services.ParticipationService;
+import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+@Service
 public class ConfirmParticipationUseCase {
 
     private final ParticipationService participationService;

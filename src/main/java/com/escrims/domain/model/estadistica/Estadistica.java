@@ -19,7 +19,12 @@ public class Estadistica {
 
     public Estadistica(Usuario usuario, UUID scrimId, int kills, int deaths, int assists,
                        boolean esMvp, String observaciones) {
-        this.id = UUID.randomUUID();
+        this(UUID.randomUUID(), usuario, scrimId, kills, deaths, assists, esMvp, observaciones, "PENDIENTE");
+    }
+
+    private Estadistica(UUID id, Usuario usuario, UUID scrimId, int kills, int deaths, int assists,
+                        boolean esMvp, String observaciones, String estadoFeedback) {
+        this.id = id;
         this.usuario = usuario;
         this.scrimId = scrimId;
         this.kills = kills;
@@ -27,7 +32,7 @@ public class Estadistica {
         this.assists = assists;
         this.esMvp = esMvp;
         this.observaciones = observaciones;
-        this.estadoFeedback = "PENDIENTE";
+        this.estadoFeedback = estadoFeedback;
     }
 
     public double calcularKDA() {
@@ -51,4 +56,11 @@ public class Estadistica {
     public boolean isEsMvp() { return esMvp; }
     public String getObservaciones() { return observaciones; }
     public String getEstadoFeedback() { return estadoFeedback; }
+
+    public static Estadistica reconstituir(UUID id, Usuario usuario, UUID scrimId,
+                                           int kills, int deaths, int assists,
+                                           boolean esMvp, String observaciones,
+                                           String estadoFeedback) {
+        return new Estadistica(id, usuario, scrimId, kills, deaths, assists, esMvp, observaciones, estadoFeedback);
+    }
 }

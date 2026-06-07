@@ -16,4 +16,9 @@ public class LobbyArmadoEvent extends DomainEvent {
 
     public UUID getScrimId() { return scrimId; }
     public List<UUID> getParticipantesIds() { return participantesIds; }
+
+    @Override
+    public void aceptar(DomainEventVisitor visitor) {
+        visitor.visit(this);
+    }
 }

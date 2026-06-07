@@ -29,4 +29,9 @@ public class ScrimCreadoEvent extends DomainEvent {
     public Region getRegion() { return region; }
     public FormatoScrim getFormato() { return formato; }
     public LocalDateTime getFechaHora() { return fechaHora; }
+
+    @Override
+    public void aceptar(DomainEventVisitor visitor) {
+        visitor.visit(this);
+    }
 }

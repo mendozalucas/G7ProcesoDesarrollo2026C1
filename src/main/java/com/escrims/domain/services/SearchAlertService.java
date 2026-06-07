@@ -33,4 +33,15 @@ public class SearchAlertService {
             busquedaRepository.save(b);
         });
     }
+
+    public void desactivarAlerta(UUID busquedaId) {
+        busquedaRepository.findById(busquedaId).ifPresent(b -> {
+            b.desactivarAlerta();
+            busquedaRepository.save(b);
+        });
+    }
+
+    public List<BusquedaFavorita> listarPorUsuario(UUID usuarioId) {
+        return busquedaRepository.findByUsuarioId(usuarioId);
+    }
 }

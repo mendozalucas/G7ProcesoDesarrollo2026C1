@@ -2,9 +2,11 @@ package com.escrims.application.usecases;
 
 import com.escrims.domain.model.usuario.Usuario;
 import com.escrims.domain.repository.UsuarioRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+@Service
 public class RegisterUserUseCase {
 
     private final UsuarioRepository usuarioRepository;
