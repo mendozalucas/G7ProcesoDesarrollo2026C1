@@ -9,22 +9,23 @@ import org.springframework.stereotype.Component;
 public class EstadisticaEntityMapper {
 
     public Estadistica toDomain(EstadisticaEntity entity, Usuario usuario) {
-        return Estadistica.reconstituir(entity.getId(), usuario, entity.getScrimId(),
-                entity.getKills(), entity.getDeaths(), entity.getAssists(),
-                entity.isEsMvp(), entity.getObservaciones(), entity.getEstadoFeedback());
+        return new Estadistica(
+                entity.getId(),
+                usuario,
+                entity.getKills(),
+                entity.getDeaths(),
+                entity.getAssists(),
+                entity.getObservaciones());
     }
 
     public EstadisticaEntity toEntity(Estadistica estadistica) {
         EstadisticaEntity entity = new EstadisticaEntity();
         entity.setId(estadistica.getId());
-        entity.setUsuarioId(estadistica.getUsuarioId());
-        entity.setScrimId(estadistica.getScrimId());
+        entity.setUsuarioId(estadistica.getUsuario().getId());
         entity.setKills(estadistica.getKills());
         entity.setDeaths(estadistica.getDeaths());
         entity.setAssists(estadistica.getAssists());
-        entity.setEsMvp(estadistica.isEsMvp());
         entity.setObservaciones(estadistica.getObservaciones());
-        entity.setEstadoFeedback(estadistica.getEstadoFeedback());
         return entity;
     }
 }

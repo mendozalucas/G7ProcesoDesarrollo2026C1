@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.UUID;
 
-public interface PostulacionJpaRepository extends JpaRepository<PostulacionEntity, UUID> {
+public interface PostulacionJpaRepository extends JpaRepository<PostulacionEntity, Long> {
 
     List<PostulacionEntity> findByScrimId(UUID scrimId);
 

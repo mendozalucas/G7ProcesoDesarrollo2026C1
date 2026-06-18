@@ -1,21 +1,27 @@
 package com.escrims.application.usecases;
 
-import com.escrims.domain.services.ParticipationService;
-import com.escrims.domain.valueobjects.LadoEquipo;
+import com.escrims.domain.model.postulacion.Postulacion;
+import com.escrims.domain.observer.DomainEventBus;
+import com.escrims.domain.repository.PostulacionRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Service
 public class AcceptPostulacionUseCase {
 
-    private final ParticipationService participationService;
+    private final PostulacionRepository postulacionRepository;
+    private final DomainEventBus eventBus;
 
-    public AcceptPostulacionUseCase(ParticipationService participationService) {
-        this.participationService = participationService;
+    public AcceptPostulacionUseCase(PostulacionRepository postulacionRepository,
+                                    DomainEventBus eventBus) {
+        this.postulacionRepository = postulacionRepository;
+        this.eventBus = eventBus;
     }
 
-    public void execute(UUID postulacionId, LadoEquipo lado) {
-        participationService.aceptarPostulacion(postulacionId, lado);
+    public void execute(Long postulacionId) {
+        Postulacion postulacion = postulacionRepository.findById(postulacionId)
+                .orElseThrow(() -> new IllegalArgumentException("Postulación no encontrada: " + postulacionId));
+        postulacion.aceptar();
+        postulacionRepository.save(postulacion);
+        postulacion.getScrim().recolectarEventos().forEach(eventBus::publish);
     }
 }

@@ -1,6 +1,6 @@
 package com.escrims.infrastructure.persistence.inmemory;
 
-import com.escrims.domain.model.busqueda.BusquedaFavorita;
+import com.escrims.domain.model.busqueda.BusquedaFavoritaAlmacenada;
 import com.escrims.domain.repository.BusquedaFavoritaRepository;
 
 import java.util.List;
@@ -12,29 +12,29 @@ import java.util.stream.Collectors;
 
 public class InMemoryBusquedaFavoritaRepository implements BusquedaFavoritaRepository {
 
-    private final Map<UUID, BusquedaFavorita> store = new ConcurrentHashMap<>();
+    private final Map<UUID, BusquedaFavoritaAlmacenada> store = new ConcurrentHashMap<>();
 
     @Override
-    public Optional<BusquedaFavorita> findById(UUID id) {
+    public Optional<BusquedaFavoritaAlmacenada> findById(UUID id) {
         return Optional.ofNullable(store.get(id));
     }
 
     @Override
-    public List<BusquedaFavorita> findByUsuarioId(UUID usuarioId) {
+    public List<BusquedaFavoritaAlmacenada> findByUsuarioId(UUID usuarioId) {
         return store.values().stream()
                 .filter(b -> b.getUsuarioId().equals(usuarioId))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<BusquedaFavorita> findAlertasActivas() {
+    public List<BusquedaFavoritaAlmacenada> findAlertasActivas() {
         return store.values().stream()
-                .filter(BusquedaFavorita::isAlertaActiva)
+                .filter(BusquedaFavoritaAlmacenada::isAlertaActiva)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public BusquedaFavorita save(BusquedaFavorita busqueda) {
+    public BusquedaFavoritaAlmacenada save(BusquedaFavoritaAlmacenada busqueda) {
         store.put(busqueda.getId(), busqueda);
         return busqueda;
     }

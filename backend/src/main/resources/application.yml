@@ -24,6 +24,15 @@ spring:
 escrims:
   scheduler:
     delay-ms: 60000
+  seed:
+    enabled: true
+  matchmaking:
+    strategy: BY_MMR
+    diferencia-mmr-maxima: 200
+    latencia-maxima-ms: 80
+    peso-mmr: 0.4
+    peso-latencia: 0.3
+    peso-historial: 0.3
 
 logging:
   level:

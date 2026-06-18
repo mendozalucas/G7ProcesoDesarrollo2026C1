@@ -29,7 +29,7 @@ public class ObserverConfig {
 
     @PostConstruct
     void registrarObservers() {
-        eventBus.suscribir(new NotificationObserver(notifierFactory));
-        eventBus.suscribir(new AlertaBusquedaObserver(busquedaRepository, scrimRepository, eventBus));
+        eventBus.suscribe(new NotificationObserver(notifierFactory));
+        eventBus.suscribe(new AlertaBusquedaObserver(busquedaRepository, scrimRepository, eventBus));
     }
 }

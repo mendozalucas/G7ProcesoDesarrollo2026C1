@@ -25,17 +25,20 @@ public class ScrimScheduler {
         List<Scrim> confirmados = scrimRepository.findByEstado("CONFIRMADO");
         confirmados.stream()
                 .filter(s -> !s.getFechaHora().isAfter(LocalDateTime.now()))
-                .forEach(s -> lifecycleService.iniciar(s.getId()));
+                .forEach(s -> {
+                    lifecycleService.iniciar(s);
+                    scrimRepository.save(s);
+                });
     }
 
     @Scheduled(fixedDelayString = "${escrims.scheduler.delay-ms:60000}")
     public void procesarScrimsEnJuego() {
         List<Scrim> enJuego = scrimRepository.findByEstado("EN_JUEGO");
         enJuego.stream()
-                .filter(s -> {
-                    LocalDateTime fin = s.getFechaHora().plus(s.getDuracionEstimada());
-                    return !fin.isAfter(LocalDateTime.now());
-                })
-                .forEach(s -> lifecycleService.finalizar(s.getId()));
+                .filter(s -> !s.getFechaHora().plusHours(2).isAfter(LocalDateTime.now()))
+                .forEach(s -> {
+                    lifecycleService.finalizar(s);
+                    scrimRepository.save(s);
+                });
     }
 }

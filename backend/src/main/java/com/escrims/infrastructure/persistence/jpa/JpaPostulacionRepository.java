@@ -25,7 +25,7 @@ public class JpaPostulacionRepository implements PostulacionRepository {
     }
 
     @Override
-    public Optional<Postulacion> findById(UUID id) {
+    public Optional<Postulacion> findById(Long id) {
         return jpaRepository.findById(id).map(mapper::toDomain);
     }
 

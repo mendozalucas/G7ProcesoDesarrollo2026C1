@@ -468,6 +468,306 @@ button, input, select {
   border-bottom: 1px solid var(--border);
 }
 
+.success {
+  color: var(--success);
+  margin: 0.75rem 0;
+}
+
+.mono {
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
+  word-break: break-all;
+}
+
+.inline-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-end;
+  margin-bottom: 0.75rem;
+}
+
+.inline-form label {
+  flex: 1;
+  min-width: 10rem;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.oauth-divider {
+  text-align: center;
+  margin: 1.25rem 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.oauth-buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.oauth-buttons button {
+  flex: 1;
+}
+
+.busqueda-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+}
+
+.busqueda-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-sm {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+.btn-ghost.danger {
+  color: var(--danger);
+}
+
+/* Scrim detail */
+.scrim-detail-page {
+  max-width: 42rem;
+}
+
+.detail-header-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.section-title {
+  margin: 2rem 0 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.scrim-flow-guide {
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  background: rgba(91, 140, 255, 0.08);
+  border: 1px solid rgba(91, 140, 255, 0.2);
+  border-radius: var(--radius);
+}
+
+.flow-steps {
+  margin: 0.5rem 0 0;
+  padding-left: 1.25rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.flow-steps li {
+  margin-bottom: 0.35rem;
+}
+
+.detail-actions {
+  margin-top: 0.5rem;
+}
+
+.action-card {
+  margin-bottom: 1rem;
+  padding: 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.action-card--organizer {
+  border-color: rgba(91, 140, 255, 0.35);
+}
+
+.action-card--danger {
+  border-color: rgba(255, 107, 107, 0.35);
+  background: rgba(255, 107, 107, 0.04);
+}
+
+.action-card-header {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.action-card-header h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+}
+
+.action-card-desc {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.step-badge {
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.action-card--danger .step-badge {
+  background: var(--danger);
+}
+
+.action-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-end;
+}
+
+.action-form label {
+  flex: 1;
+  min-width: 12rem;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.postulacion-id-hint {
+  margin: 0.75rem 0 0;
+  padding: 0.65rem 0.85rem;
+  background: rgba(61, 214, 140, 0.1);
+  border: 1px solid rgba(61, 214, 140, 0.25);
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.alert {
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius);
+  margin: 1rem 0;
+  font-size: 0.95rem;
+}
+
+.alert-success {
+  background: rgba(61, 214, 140, 0.1);
+  border: 1px solid rgba(61, 214, 140, 0.3);
+  color: var(--success);
+}
+
+.alert-error {
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  color: var(--danger);
+}
+
+.alert-muted {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.report-details {
+  margin-top: 2.5rem;
+  padding: 1rem 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.report-details summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--muted);
+  user-select: none;
+}
+
+.report-details summary:hover {
+  color: var(--text);
+}
+
+.report-details[open] summary {
+  margin-bottom: 0.75rem;
+  color: var(--text);
+}
+
+.report-details .muted {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+}
+
+.postulantes-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.postulante-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.postulante-row:last-child {
+  border-bottom: none;
+}
+
+.postulante-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.postulante-info .muted {
+  font-size: 0.85rem;
+}
+
+.action-hint {
+  margin: 0.75rem 0 0;
+  font-size: 0.9rem;
+  color: var(--warning);
+}
+
+.lobby-stats {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+}
+
+.detail-section h3 {
+  margin: 1.5rem 0 0.75rem;
+  font-size: 0.95rem;
+}
+
 @media (max-width: 640px) {
   .topbar {
     padding: 1rem;

@@ -1,8 +1,8 @@
 package com.escrims.application.usecases;
 
 import com.escrims.application.dto.BusquedaFavoritaDTO;
+import com.escrims.domain.model.busqueda.BusquedaFavoritaAlmacenada;
 import com.escrims.domain.repository.BusquedaFavoritaRepository;
-import com.escrims.domain.services.SearchAlertService;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -10,28 +10,28 @@ import java.util.UUID;
 @Service
 public class ToggleAlertaBusquedaUseCase {
 
-    private final SearchAlertService searchAlertService;
     private final BusquedaFavoritaRepository busquedaRepository;
 
-    public ToggleAlertaBusquedaUseCase(SearchAlertService searchAlertService,
-                                        BusquedaFavoritaRepository busquedaRepository) {
-        this.searchAlertService = searchAlertService;
+    public ToggleAlertaBusquedaUseCase(BusquedaFavoritaRepository busquedaRepository) {
         this.busquedaRepository = busquedaRepository;
     }
 
     public BusquedaFavoritaDTO activar(UUID busquedaId) {
-        searchAlertService.activarAlerta(busquedaId);
-        return obtener(busquedaId);
+        return BusquedaFavoritaDTO.from(actualizarAlerta(busquedaId, true));
     }
 
     public BusquedaFavoritaDTO desactivar(UUID busquedaId) {
-        searchAlertService.desactivarAlerta(busquedaId);
-        return obtener(busquedaId);
+        return BusquedaFavoritaDTO.from(actualizarAlerta(busquedaId, false));
     }
 
-    private BusquedaFavoritaDTO obtener(UUID busquedaId) {
-        return busquedaRepository.findById(busquedaId)
-                .map(BusquedaFavoritaDTO::from)
+    private BusquedaFavoritaAlmacenada actualizarAlerta(UUID busquedaId, boolean activa) {
+        BusquedaFavoritaAlmacenada actual = busquedaRepository.findById(busquedaId)
                 .orElseThrow(() -> new IllegalArgumentException("Búsqueda favorita no encontrada: " + busquedaId));
+        BusquedaFavoritaAlmacenada actualizada = new BusquedaFavoritaAlmacenada(
+                actual.getId(),
+                actual.getUsuarioId(),
+                activa,
+                actual.getCriterios());
+        return busquedaRepository.save(actualizada);
     }
 }

@@ -8,13 +8,13 @@ public final class RangosPermitidos {
     private final Rango max;
 
     public RangosPermitidos(Rango min, Rango max) {
-        if (min.compareTo(max) > 0) throw new IllegalArgumentException("Rango min no puede ser mayor que max");
+        if (min.getMmr() > max.getMmr()) throw new IllegalArgumentException("Rango min no puede ser mayor que max");
         this.min = min;
         this.max = max;
     }
 
     public boolean contiene(Rango rango) {
-        return rango != null && rango.estaEntre(min, max);
+        return rango != null && rango.getMmr() >= min.getMmr() && rango.getMmr() <= max.getMmr();
     }
 
     @Override

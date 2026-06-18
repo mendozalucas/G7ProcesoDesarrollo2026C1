@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api/client';
 import type { Scrim } from '../types';
+import { formatRegion } from '../utils/scrim';
 
 const ESTADO_LABEL: Record<string, string> = {
   BUSCANDO: 'Buscando jugadores',
@@ -15,6 +16,8 @@ const ESTADO_LABEL: Record<string, string> = {
 export function ScrimsPage() {
   const [scrims, setScrims] = useState<Scrim[]>([]);
   const [juego, setJuego] = useState('');
+  const [servidor, setServidor] = useState('');
+  const [zona, setZona] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -24,6 +27,8 @@ export function ScrimsPage() {
     try {
       const params: Record<string, string> = {};
       if (juego) params.juego = juego;
+      if (servidor) params.servidor = servidor;
+      if (zona) params.zona = zona;
       setScrims(await api.listScrims(params));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudieron cargar los scrims');
@@ -48,13 +53,23 @@ export function ScrimsPage() {
         </Link>
       </div>
 
-      <div className="filters">
+      <div className="filters filters-grid">
         <select value={juego} onChange={(e) => setJuego(e.target.value)}>
           <option value="">Todos los juegos</option>
           <option value="valorant">Valorant</option>
           <option value="lol">LoL</option>
           <option value="cs2">CS2</option>
         </select>
+        <input
+          placeholder="Servidor"
+          value={servidor}
+          onChange={(e) => setServidor(e.target.value)}
+        />
+        <input
+          placeholder="Zona"
+          value={zona}
+          onChange={(e) => setZona(e.target.value)}
+        />
         <button type="button" className="btn-secondary" onClick={() => void load()}>
           Filtrar
         </button>
@@ -79,17 +94,13 @@ export function ScrimsPage() {
                 {ESTADO_LABEL[s.estado] ?? s.estado}
               </span>
             </div>
-            <h3>
-              {s.jugadoresPorLado}v{s.jugadoresPorLado} · {s.servidor}/{s.zona}
-            </h3>
+            <h3>{formatRegion(s.region)}</h3>
             <ul className="meta-list">
-              <li>Rango {s.rangoMin}–{s.rangoMax}</li>
+              <li>Rango {s.rangoMinMmr}–{s.rangoMaxMmr} MMR</li>
               <li>≤ {s.latenciaMaxMs} ms</li>
-              <li>{s.modalidad}</li>
               <li>{new Date(s.fechaHora).toLocaleString('es-AR')}</li>
             </ul>
             <div className="scrim-card-footer">
-              <span>{s.cuposDisponibles} cupos libres</span>
               <Link to={`/scrims/${s.id}`}>Ver detalle</Link>
             </div>
           </article>

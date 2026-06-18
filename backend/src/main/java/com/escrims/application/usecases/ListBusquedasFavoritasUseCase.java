@@ -1,7 +1,7 @@
 package com.escrims.application.usecases;
 
 import com.escrims.application.dto.BusquedaFavoritaDTO;
-import com.escrims.domain.services.SearchAlertService;
+import com.escrims.domain.repository.BusquedaFavoritaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,14 +11,14 @@ import java.util.stream.Collectors;
 @Service
 public class ListBusquedasFavoritasUseCase {
 
-    private final SearchAlertService searchAlertService;
+    private final BusquedaFavoritaRepository busquedaRepository;
 
-    public ListBusquedasFavoritasUseCase(SearchAlertService searchAlertService) {
-        this.searchAlertService = searchAlertService;
+    public ListBusquedasFavoritasUseCase(BusquedaFavoritaRepository busquedaRepository) {
+        this.busquedaRepository = busquedaRepository;
     }
 
     public List<BusquedaFavoritaDTO> execute(UUID usuarioId) {
-        return searchAlertService.listarPorUsuario(usuarioId).stream()
+        return busquedaRepository.findByUsuarioId(usuarioId).stream()
                 .map(BusquedaFavoritaDTO::from)
                 .collect(Collectors.toList());
     }

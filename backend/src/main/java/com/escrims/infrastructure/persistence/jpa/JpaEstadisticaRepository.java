@@ -32,7 +32,7 @@ public class JpaEstadisticaRepository implements EstadisticaRepository {
     }
 
     @Override
-    public Optional<Estadistica> findById(UUID id) {
+    public Optional<Estadistica> findById(Long id) {
         return jpaRepository.findById(id).flatMap(entity ->
                 usuarioJpaRepository.findById(entity.getUsuarioId())
                         .map(usuarioMapper::toDomain)
@@ -41,9 +41,7 @@ public class JpaEstadisticaRepository implements EstadisticaRepository {
 
     @Override
     public List<Estadistica> findByScrimId(UUID scrimId) {
-        return jpaRepository.findByScrimId(scrimId).stream()
-                .map(this::toDomainOrThrow)
-                .collect(Collectors.toList());
+        return List.of();
     }
 
     @Override

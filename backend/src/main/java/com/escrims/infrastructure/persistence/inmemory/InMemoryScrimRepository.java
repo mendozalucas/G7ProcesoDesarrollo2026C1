@@ -4,6 +4,7 @@ import com.escrims.domain.model.scrim.Scrim;
 import com.escrims.domain.model.usuario.Usuario;
 import com.escrims.domain.repository.ScrimRepository;
 import com.escrims.domain.valueobjects.CriteriosBusqueda;
+import com.escrims.domain.valueobjects.MatchmakingContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,18 +32,18 @@ public class InMemoryScrimRepository implements ScrimRepository {
     @Override
     public List<Scrim> findByCriteria(CriteriosBusqueda criterios) {
         return store.values().stream()
-                .filter(s -> criterios.coincideCon(
-                        s.getNombreJuego(),
-                        s.getFormato(),
-                        s.getRegion(),
-                        s.getFechaHora(),
-                        s.getLatenciaMax()))
+                .filter(criterios::coincideCon)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<Usuario> findCandidatosParaScrim(Scrim scrim) {
         return new ArrayList<>();
+    }
+
+    @Override
+    public MatchmakingContext buildMatchmakingContext(Scrim scrim) {
+        return new MatchmakingContext(scrim, 5, List.of());
     }
 
     @Override

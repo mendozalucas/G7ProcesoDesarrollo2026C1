@@ -1,7 +1,13 @@
 package com.escrims.application.usecases;
 
-import com.escrims.domain.services.ParticipationService;
-import com.escrims.domain.valueobjects.RolJuego;
+import com.escrims.domain.model.postulacion.Postulacion;
+import com.escrims.domain.model.rol.Rol;
+import com.escrims.domain.model.scrim.Scrim;
+import com.escrims.domain.model.usuario.Usuario;
+import com.escrims.domain.observer.DomainEventBus;
+import com.escrims.domain.repository.PostulacionRepository;
+import com.escrims.domain.repository.ScrimRepository;
+import com.escrims.domain.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -9,13 +15,31 @@ import java.util.UUID;
 @Service
 public class ApplyToScrimUseCase {
 
-    private final ParticipationService participationService;
+    private final PostulacionRepository postulacionRepository;
+    private final ScrimRepository scrimRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final DomainEventBus eventBus;
 
-    public ApplyToScrimUseCase(ParticipationService participationService) {
-        this.participationService = participationService;
+    public ApplyToScrimUseCase(PostulacionRepository postulacionRepository,
+                               ScrimRepository scrimRepository,
+                               UsuarioRepository usuarioRepository,
+                               DomainEventBus eventBus) {
+        this.postulacionRepository = postulacionRepository;
+        this.scrimRepository = scrimRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.eventBus = eventBus;
     }
 
-    public UUID execute(UUID usuarioId, UUID scrimId, RolJuego rolDeseado) {
-        return participationService.postularseAScrim(usuarioId, scrimId, rolDeseado);
+    public Long execute(UUID usuarioId, UUID scrimId, String rolNombre) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado: " + usuarioId));
+        Scrim scrim = scrimRepository.findById(scrimId)
+                .orElseThrow(() -> new IllegalArgumentException("Scrim no encontrado: " + scrimId));
+
+        Rol rol = new Rol(null, rolNombre);
+        Postulacion postulacion = usuario.postular(scrim, rol);
+        Postulacion guardada = postulacionRepository.save(postulacion);
+        scrim.recolectarEventos().forEach(eventBus::publish);
+        return guardada.getId();
     }
 }

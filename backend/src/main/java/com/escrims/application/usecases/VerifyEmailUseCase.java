@@ -16,7 +16,7 @@ public class VerifyEmailUseCase {
 
     public void execute(UUID usuarioId) {
         usuarioRepository.findById(usuarioId).ifPresentOrElse(u -> {
-            u.verificarEmail();
+            u.setVerificado(true);
             usuarioRepository.save(u);
         }, () -> {
             throw new IllegalArgumentException("Usuario no encontrado: " + usuarioId);

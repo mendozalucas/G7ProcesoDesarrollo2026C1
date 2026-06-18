@@ -5,8 +5,6 @@ import com.escrims.domain.repository.ReporteConductaRepository;
 import com.escrims.domain.services.ModerationService;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Service
 public class ModerateReportUseCase {
 
@@ -14,16 +12,16 @@ public class ModerateReportUseCase {
     private final ReporteConductaRepository reporteRepository;
 
     public ModerateReportUseCase(ModerationService moderationService,
-                                   ReporteConductaRepository reporteRepository) {
+                                 ReporteConductaRepository reporteRepository) {
         this.moderationService = moderationService;
         this.reporteRepository = reporteRepository;
     }
 
-    public UUID execute(UUID scrimId, UUID reportanteId, UUID reportadoId, String motivo) {
-        ReporteConducta reporte = new ReporteConducta(scrimId, reportanteId, reportadoId, motivo);
-        reporteRepository.save(reporte);
-        moderationService.procesarReporte(reporte);
-        reporteRepository.save(reporte);
-        return reporte.getId();
+    public Long execute(String motivo) {
+        ReporteConducta reporte = new ReporteConducta(null, motivo);
+        ReporteConducta guardado = reporteRepository.save(reporte);
+        moderationService.procesarReporte(guardado);
+        reporteRepository.save(guardado);
+        return guardado.getId();
     }
 }

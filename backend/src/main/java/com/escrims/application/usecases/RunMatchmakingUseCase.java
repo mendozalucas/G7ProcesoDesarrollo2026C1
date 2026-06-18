@@ -1,29 +1,36 @@
 package com.escrims.application.usecases;
 
+import com.escrims.domain.model.postulacion.EstadoPostulacion;
+import com.escrims.domain.model.postulacion.Postulacion;
 import com.escrims.domain.model.scrim.Scrim;
 import com.escrims.domain.model.usuario.Usuario;
 import com.escrims.domain.observer.DomainEventBus;
+import com.escrims.domain.repository.PostulacionRepository;
 import com.escrims.domain.repository.ScrimRepository;
 import com.escrims.domain.services.MatchmakingService;
-import com.escrims.domain.valueobjects.LadoEquipo;
-import com.escrims.domain.valueobjects.RolJuego;
+import com.escrims.domain.valueobjects.MatchmakingContext;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class RunMatchmakingUseCase {
 
     private final MatchmakingService matchmakingService;
     private final ScrimRepository scrimRepository;
+    private final PostulacionRepository postulacionRepository;
     private final DomainEventBus eventBus;
 
     public RunMatchmakingUseCase(MatchmakingService matchmakingService,
-                                  ScrimRepository scrimRepository,
-                                  DomainEventBus eventBus) {
+                                 ScrimRepository scrimRepository,
+                                 PostulacionRepository postulacionRepository,
+                                 DomainEventBus eventBus) {
         this.matchmakingService = matchmakingService;
         this.scrimRepository = scrimRepository;
+        this.postulacionRepository = postulacionRepository;
         this.eventBus = eventBus;
     }
 
@@ -35,29 +42,36 @@ public class RunMatchmakingUseCase {
             throw new IllegalStateException("Matchmaking solo disponible mientras se buscan jugadores");
         }
 
-        matchmakingService.cambiarEstrategiaPorJuego(scrim.getNombreJuego());
-        List<Usuario> candidatos = matchmakingService.ejecutarMatchmaking(scrimId);
-
-        LadoEquipo[] lados = {LadoEquipo.EQUIPO_A, LadoEquipo.EQUIPO_B};
-        int ladoIdx = 0;
-
-        for (Usuario usuario : candidatos) {
-            if (scrim.getCuposDisponibles() <= 0) {
-                break;
-            }
-            RolJuego rol = resolverRol(usuario, scrim.getNombreJuego());
-            scrim.agregarJugador(usuario.getId(), lados[ladoIdx % 2], rol);
-            ladoIdx++;
+        MatchmakingContext context = scrimRepository.buildMatchmakingContext(scrim);
+        if (context.getCandidatos().isEmpty()) {
+            throw new IllegalStateException("No hay jugadores aceptados para armar el lobby");
         }
 
+        List<Usuario> seleccionados = matchmakingService.getEstrategia().seleccionar(context);
+        if (seleccionados.isEmpty()) {
+            throw new IllegalStateException("La estrategia de matchmaking no seleccionó jugadores");
+        }
+
+        Set<UUID> idsSeleccionados = seleccionados.stream()
+                .map(Usuario::getId)
+                .collect(Collectors.toSet());
+
+        scrim.registrarParticipantesLobby(idsSeleccionados.stream().toList());
+        actualizarPostulaciones(scrimId, idsSeleccionados);
+        scrim.avanzarEstado();
+
         scrimRepository.save(scrim);
-        eventBus.publicarTodos(scrim.recolectarEventos());
+        scrim.recolectarEventos().forEach(eventBus::publish);
     }
 
-    private RolJuego resolverRol(Usuario usuario, String juego) {
-        return usuario.getRolesPreferidos().stream()
-                .filter(r -> r.getJuego().equalsIgnoreCase(juego))
-                .findFirst()
-                .orElse(new RolJuego(juego, "FLEX"));
+    private void actualizarPostulaciones(UUID scrimId, Set<UUID> idsSeleccionados) {
+        for (Postulacion postulacion : postulacionRepository.findByScrimId(scrimId)) {
+            if (postulacion.getEstado() == EstadoPostulacion.ACEPTADA) {
+                if (!idsSeleccionados.contains(postulacion.getUsuario().getId())) {
+                    postulacion.rechazar();
+                    postulacionRepository.save(postulacion);
+                }
+            }
+        }
     }
 }

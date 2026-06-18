@@ -4,14 +4,12 @@ import com.escrims.domain.events.CanceladoEvent;
 import com.escrims.domain.events.LobbyArmadoEvent;
 import com.escrims.domain.model.scrim.Scrim;
 
-import java.util.List;
-
 public class BuscandoJugadoresState implements ScrimState {
 
     @Override
     public void avanzar(Scrim scrim) {
         scrim.cambiarEstado(new LobbyArmadoState());
-        scrim.agregarEvento(new LobbyArmadoEvent(scrim.getId(), List.of()));
+        scrim.agregarEvento(new LobbyArmadoEvent(scrim.getId(), scrim.getParticipantesLobby()));
     }
 
     @Override

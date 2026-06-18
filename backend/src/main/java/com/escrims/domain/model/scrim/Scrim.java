@@ -10,6 +10,7 @@ import com.escrims.domain.valueobjects.Region;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,6 +26,7 @@ public class Scrim {
     private LocalDateTime fechaHora;
     private ScrimState currentState;
     private String motivoCancelacion;
+    private final List<UUID> participantesLobby;
     private final List<DomainEvent> domainEvents;
 
     public Scrim(UUID id, Juego juego, Usuario organizador, Region region,
@@ -38,7 +40,17 @@ public class Scrim {
         this.latenciaMax = latenciaMax;
         this.fechaHora = fechaHora;
         this.currentState = new BuscandoJugadoresState();
+        this.participantesLobby = new ArrayList<>();
         this.domainEvents = new ArrayList<>();
+    }
+
+    public void registrarParticipantesLobby(List<UUID> ids) {
+        this.participantesLobby.clear();
+        this.participantesLobby.addAll(ids);
+    }
+
+    public List<UUID> getParticipantesLobby() {
+        return Collections.unmodifiableList(participantesLobby);
     }
 
     public void cancelar(String motivo) {

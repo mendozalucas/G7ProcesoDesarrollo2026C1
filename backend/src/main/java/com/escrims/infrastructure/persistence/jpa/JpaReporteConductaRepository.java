@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Repository
@@ -25,20 +24,14 @@ public class JpaReporteConductaRepository implements ReporteConductaRepository {
     }
 
     @Override
-    public Optional<ReporteConducta> findById(UUID id) {
+    public Optional<ReporteConducta> findById(Long id) {
         return jpaRepository.findById(id).map(mapper::toDomain);
     }
 
     @Override
     public List<ReporteConducta> findByEstado(String estadoResolucion) {
-        return jpaRepository.findByEstadoResolucionIgnoreCase(estadoResolucion).stream()
-                .map(mapper::toDomain)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<ReporteConducta> findByReportadoId(UUID reportadoId) {
-        return jpaRepository.findByReportadoId(reportadoId).stream()
+        boolean resuelto = "RESUELTO".equalsIgnoreCase(estadoResolucion);
+        return jpaRepository.findByResuelto(resuelto).stream()
                 .map(mapper::toDomain)
                 .collect(Collectors.toList());
     }

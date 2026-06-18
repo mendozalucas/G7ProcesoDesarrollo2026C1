@@ -1,10 +1,9 @@
 package com.escrims.presentation.api;
 
 import com.escrims.application.dto.EstadisticaDTO;
+import com.escrims.application.dto.PostulacionResponseDTO;
 import com.escrims.application.dto.ScrimResponseDTO;
 import com.escrims.application.usecases.*;
-import com.escrims.domain.valueobjects.LadoEquipo;
-import com.escrims.domain.valueobjects.RolJuego;
 import com.escrims.presentation.api.dto.*;
 import com.escrims.presentation.api.mapper.ScrimRequestMapper;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -29,6 +28,7 @@ public class ScrimController {
     private final CancelScrimUseCase cancelScrimUseCase;
     private final FinalizeScrimUseCase finalizeScrimUseCase;
     private final RunMatchmakingUseCase runMatchmakingUseCase;
+    private final ListPostulacionesByScrimUseCase listPostulacionesByScrimUseCase;
 
     public ScrimController(CreateScrimUseCase createScrimUseCase,
                            SearchScrimsUseCase searchScrimsUseCase,
@@ -38,7 +38,8 @@ public class ScrimController {
                            ConfirmParticipationUseCase confirmParticipationUseCase,
                            CancelScrimUseCase cancelScrimUseCase,
                            FinalizeScrimUseCase finalizeScrimUseCase,
-                           RunMatchmakingUseCase runMatchmakingUseCase) {
+                           RunMatchmakingUseCase runMatchmakingUseCase,
+                           ListPostulacionesByScrimUseCase listPostulacionesByScrimUseCase) {
         this.createScrimUseCase = createScrimUseCase;
         this.searchScrimsUseCase = searchScrimsUseCase;
         this.getScrimUseCase = getScrimUseCase;
@@ -48,6 +49,7 @@ public class ScrimController {
         this.cancelScrimUseCase = cancelScrimUseCase;
         this.finalizeScrimUseCase = finalizeScrimUseCase;
         this.runMatchmakingUseCase = runMatchmakingUseCase;
+        this.listPostulacionesByScrimUseCase = listPostulacionesByScrimUseCase;
     }
 
     @GetMapping
@@ -73,20 +75,22 @@ public class ScrimController {
         return Map.of("id", createScrimUseCase.execute(ScrimRequestMapper.toCommand(request)));
     }
 
+    @GetMapping("/{id}/postulaciones")
+    public List<PostulacionResponseDTO> listarPostulaciones(@PathVariable UUID id) {
+        return listPostulacionesByScrimUseCase.execute(id);
+    }
+
     @PostMapping("/{id}/postulaciones")
     @ResponseStatus(HttpStatus.CREATED)
-    public Map<String, UUID> postularse(@PathVariable UUID id, @RequestBody PostulacionRequest request) {
-        UUID postulacionId = applyToScrimUseCase.execute(
-                request.getUsuarioId(), id, new RolJuego(request.getJuego(), request.getRol()));
+    public Map<String, Long> postularse(@PathVariable UUID id, @RequestBody PostulacionRequest request) {
+        Long postulacionId = applyToScrimUseCase.execute(request.getUsuarioId(), id, request.getRol());
         return Map.of("postulacionId", postulacionId);
     }
 
     @PostMapping("/{id}/postulaciones/aceptar")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void aceptarPostulacion(@PathVariable UUID id, @RequestBody AceptarPostulacionRequest request) {
-        LadoEquipo lado = "EQUIPO_B".equalsIgnoreCase(request.getLado())
-                ? LadoEquipo.EQUIPO_B : LadoEquipo.EQUIPO_A;
-        acceptPostulacionUseCase.execute(request.getPostulacionId(), lado);
+        acceptPostulacionUseCase.execute(request.getPostulacionId());
     }
 
     @PostMapping("/{id}/confirmaciones")

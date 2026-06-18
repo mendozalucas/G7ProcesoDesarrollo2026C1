@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/reportes")
@@ -20,12 +19,8 @@ public class ModerationController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Map<String, UUID> reportar(@RequestBody ReporteRequest request) {
-        UUID id = moderateReportUseCase.execute(
-                request.getScrimId(),
-                request.getReportanteId(),
-                request.getReportadoId(),
-                request.getMotivo());
+    public Map<String, Long> reportar(@RequestBody ReporteRequest request) {
+        Long id = moderateReportUseCase.execute(request.getMotivo());
         return Map.of("reporteId", id);
     }
 }

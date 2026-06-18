@@ -38,4 +38,5 @@ public class Usuario {
     public String getPasswordHash() { return passwordHash; }
     public boolean isVerificado() { return verificado; }
     public void setVerificado(boolean verificado) { this.verificado = verificado; }
+    public void setUsername(String username) { this.username = username; }
 }

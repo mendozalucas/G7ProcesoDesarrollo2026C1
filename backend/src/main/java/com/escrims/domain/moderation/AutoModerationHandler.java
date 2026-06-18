@@ -10,8 +10,13 @@ public class AutoModerationHandler extends ModerationHandler {
 
     @Override
     public void handle(ReporteConducta reporte) {
+        String motivo = reporte.getMotivo();
+        if (motivo == null || motivo.isBlank()) {
+            pasarAlSiguiente(reporte);
+            return;
+        }
         boolean esObvio = PALABRAS_CLAVE.stream()
-                .anyMatch(p -> reporte.getMotivo().toLowerCase().contains(p));
+                .anyMatch(p -> motivo.toLowerCase().contains(p));
         if (esObvio) {
             reporte.resolver();
         } else {

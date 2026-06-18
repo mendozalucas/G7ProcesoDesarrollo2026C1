@@ -29,15 +29,12 @@ public final class CriteriosBusqueda {
         this.latenciaMax = latenciaMax;
     }
 
-    public boolean coincideCon(String juego, FormatoScrim formato, Region region,
-                                LocalDateTime fechaHora, Latencia latenciaScrim) {
-        if (this.juego != null && !this.juego.equalsIgnoreCase(juego)) return false;
-        if (this.formato != null && !this.formato.equals(formato)) return false;
-        if (this.region != null && !this.region.equals(region)) return false;
-        if (this.desde != null && fechaHora.isBefore(this.desde)) return false;
-        if (this.hasta != null && fechaHora.isAfter(this.hasta)) return false;
-        if (this.latenciaMax != null && latenciaScrim != null
-                && !latenciaScrim.estaEnUmbral(this.latenciaMax)) return false;
+    public boolean coincideCon(com.escrims.domain.model.scrim.Scrim scrim) {
+        if (this.juego != null && !this.juego.equalsIgnoreCase(scrim.getJuego().getNombre())) return false;
+        if (this.region != null && !this.region.equals(scrim.getRegion())) return false;
+        if (this.desde != null && scrim.getFechaHora().isBefore(this.desde)) return false;
+        if (this.hasta != null && scrim.getFechaHora().isAfter(this.hasta)) return false;
+        if (this.latenciaMax != null && scrim.getLatenciaMax() > this.latenciaMax.getPingMs()) return false;
         return true;
     }
 

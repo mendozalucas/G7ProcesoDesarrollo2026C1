@@ -1,0 +1,440 @@
+{
+  "info": {
+    "_postman_id": "escrims-g7-2026",
+    "name": "eScrims API",
+    "description": "Colección para testear la API REST de eScrims (G7ProcesoDesarrollo2026C1).\n\n**Requisitos:** backend corriendo en `http://localhost:8080` (`mvn spring-boot:run` en `/backend`).\n\n**Flujo sugerido:** Auth → Usuarios → Scrims (en orden) → Búsquedas favoritas → Reportes.\n\nLas variables `usuarioId`, `scrimId`, `postulacionId` y `busquedaId` se guardan automáticamente al ejecutar register, crear scrim, postular y guardar búsqueda.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api"
+    },
+    {
+      "key": "usuarioId",
+      "value": ""
+    },
+    {
+      "key": "scrimId",
+      "value": ""
+    },
+    {
+      "key": "postulacionId",
+      "value": ""
+    },
+    {
+      "key": "busquedaId",
+      "value": ""
+    },
+    {
+      "key": "email",
+      "value": "test@escrims.local"
+    },
+    {
+      "key": "password",
+      "value": "secret123"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    if (json.usuarioId) {",
+                  "        pm.collectionVariables.set('usuarioId', json.usuarioId);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"test_user\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/register"
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    if (json.usuarioId) {",
+                  "        pm.collectionVariables.set('usuarioId', json.usuarioId);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "OAuth URL",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/auth/oauth/discord/url"
+          }
+        },
+        {
+          "name": "OAuth Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    if (json.usuarioId) {",
+                  "        pm.collectionVariables.set('usuarioId', json.usuarioId);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"proveedor\": \"discord\",\n  \"externalId\": \"ext-oauth-123\",\n  \"email\": \"oauth@escrims.local\",\n  \"username\": \"oauth_user\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/oauth/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Usuarios",
+      "item": [
+        {
+          "name": "Obtener perfil",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/usuarios/{{usuarioId}}"
+          }
+        },
+        {
+          "name": "Actualizar perfil",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"test_user_updated\"\n}"
+            },
+            "url": "{{baseUrl}}/usuarios/{{usuarioId}}/perfil"
+          }
+        },
+        {
+          "name": "Verificar email",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/usuarios/{{usuarioId}}/verificar-email"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Scrims",
+      "item": [
+        {
+          "name": "Crear scrim",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const json = pm.response.json();",
+                  "    if (json.id) {",
+                  "        pm.collectionVariables.set('scrimId', json.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"juego\": \"VALORANT\",\n  \"jugadoresPorLado\": 5,\n  \"servidor\": \"NA\",\n  \"zona\": \"East\",\n  \"rangoMin\": {\n    \"tier\": \"Gold\",\n    \"numerico\": 1500\n  },\n  \"rangoMax\": {\n    \"tier\": \"Plat\",\n    \"numerico\": 2000\n  },\n  \"latenciaMaxMs\": 80,\n  \"fechaHora\": \"2026-06-20T18:00:00\",\n  \"duracionMinutos\": 90,\n  \"organizadorId\": \"{{usuarioId}}\"\n}"
+            },
+            "url": "{{baseUrl}}/scrims"
+          }
+        },
+        {
+          "name": "Listar scrims",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/scrims?juego=VALORANT&servidor=NA&zona=East",
+              "host": ["{{baseUrl}}"],
+              "path": ["scrims"],
+              "query": [
+                { "key": "juego", "value": "VALORANT" },
+                { "key": "servidor", "value": "NA" },
+                { "key": "zona", "value": "East" },
+                { "key": "desde", "value": "", "disabled": true },
+                { "key": "hasta", "value": "", "disabled": true },
+                { "key": "latenciaMaxMs", "value": "80", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener scrim por ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/scrims/{{scrimId}}"
+          }
+        },
+        {
+          "name": "Postularse",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const json = pm.response.json();",
+                  "    if (json.postulacionId) {",
+                  "        pm.collectionVariables.set('postulacionId', json.postulacionId);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuarioId\": \"{{usuarioId}}\",\n  \"juego\": \"VALORANT\",\n  \"rol\": \"Duelist\"\n}"
+            },
+            "url": "{{baseUrl}}/scrims/{{scrimId}}/postulaciones"
+          }
+        },
+        {
+          "name": "Aceptar postulación",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"postulacionId\": {{postulacionId}}\n}"
+            },
+            "url": "{{baseUrl}}/scrims/{{scrimId}}/postulaciones/aceptar"
+          }
+        },
+        {
+          "name": "Confirmar participación",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuarioId\": \"{{usuarioId}}\"\n}"
+            },
+            "url": "{{baseUrl}}/scrims/{{scrimId}}/confirmaciones"
+          }
+        },
+        {
+          "name": "Ejecutar matchmaking",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/scrims/{{scrimId}}/matchmaking"
+          }
+        },
+        {
+          "name": "Finalizar scrim",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"usuarioId\": \"{{usuarioId}}\",\n    \"esMvp\": true,\n    \"kills\": 20,\n    \"deaths\": 10,\n    \"assists\": 5,\n    \"observaciones\": \"Buen scrim\"\n  }\n]"
+            },
+            "url": "{{baseUrl}}/scrims/{{scrimId}}/finalizar"
+          }
+        },
+        {
+          "name": "Cancelar scrim",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"motivo\": \"No hay suficientes jugadores\"\n}"
+            },
+            "url": "{{baseUrl}}/scrims/{{scrimId}}/cancelar"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Búsquedas favoritas",
+      "item": [
+        {
+          "name": "Guardar búsqueda",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const json = pm.response.json();",
+                  "    if (json.id) {",
+                  "        pm.collectionVariables.set('busquedaId', json.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"juego\": \"VALORANT\",\n  \"rangoMin\": 1500,\n  \"rangoMax\": 2000,\n  \"servidor\": \"NA\",\n  \"zona\": \"East\",\n  \"rolBuscado\": \"Duelist\",\n  \"activarAlerta\": true\n}"
+            },
+            "url": "{{baseUrl}}/usuarios/{{usuarioId}}/busquedas-favoritas"
+          }
+        },
+        {
+          "name": "Listar búsquedas",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/usuarios/{{usuarioId}}/busquedas-favoritas"
+          }
+        },
+        {
+          "name": "Activar alerta",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/usuarios/{{usuarioId}}/busquedas-favoritas/{{busquedaId}}/activar-alerta"
+          }
+        },
+        {
+          "name": "Desactivar alerta",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/usuarios/{{usuarioId}}/busquedas-favoritas/{{busquedaId}}/desactivar-alerta"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reportes",
+      "item": [
+        {
+          "name": "Crear reporte",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"motivo\": \"spam cheat\"\n}"
+            },
+            "url": "{{baseUrl}}/reportes"
+          }
+        }
+      ]
+    }
+  ]
+}

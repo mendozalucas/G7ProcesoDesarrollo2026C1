@@ -17,11 +17,11 @@ public class Moderator {
     public void revisarReporte(ReporteConducta reporte) {}
 
     public void aprobarReporte(ReporteConducta reporte) {
-        reporte.setResuelto(true);
+        reporte.resolver();
     }
 
     public void rechazarReporte(ReporteConducta reporte) {
-        reporte.setResuelto(false);
+        // permanece pendiente
     }
 
     public Long getId() { return id; }

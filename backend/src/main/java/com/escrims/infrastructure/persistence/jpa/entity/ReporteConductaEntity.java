@@ -2,45 +2,27 @@ package com.escrims.infrastructure.persistence.jpa.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "reportes_conducta")
 public class ReporteConductaEntity {
 
     @Id
-    private UUID id;
-
-    @Column(nullable = false)
-    private UUID scrimId;
-
-    @Column(nullable = false)
-    private UUID reportanteId;
-
-    @Column(nullable = false)
-    private UUID reportadoId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(nullable = false)
     private String motivo;
 
-    private String estadoResolucion;
-    private String sancionTipo;
+    private boolean resuelto;
     private LocalDateTime fechaReporte;
 
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
-    public UUID getScrimId() { return scrimId; }
-    public void setScrimId(UUID scrimId) { this.scrimId = scrimId; }
-    public UUID getReportanteId() { return reportanteId; }
-    public void setReportanteId(UUID reportanteId) { this.reportanteId = reportanteId; }
-    public UUID getReportadoId() { return reportadoId; }
-    public void setReportadoId(UUID reportadoId) { this.reportadoId = reportadoId; }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
     public String getMotivo() { return motivo; }
     public void setMotivo(String motivo) { this.motivo = motivo; }
-    public String getEstadoResolucion() { return estadoResolucion; }
-    public void setEstadoResolucion(String estadoResolucion) { this.estadoResolucion = estadoResolucion; }
-    public String getSancionTipo() { return sancionTipo; }
-    public void setSancionTipo(String sancionTipo) { this.sancionTipo = sancionTipo; }
+    public boolean isResuelto() { return resuelto; }
+    public void setResuelto(boolean resuelto) { this.resuelto = resuelto; }
     public LocalDateTime getFechaReporte() { return fechaReporte; }
     public void setFechaReporte(LocalDateTime fechaReporte) { this.fechaReporte = fechaReporte; }
 }

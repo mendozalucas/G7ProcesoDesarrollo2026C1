@@ -1,6 +1,6 @@
 package com.escrims.infrastructure.persistence.jpa;
 
-import com.escrims.domain.model.busqueda.BusquedaFavorita;
+import com.escrims.domain.model.busqueda.BusquedaFavoritaAlmacenada;
 import com.escrims.domain.repository.BusquedaFavoritaRepository;
 import com.escrims.infrastructure.persistence.jpa.mapper.BusquedaFavoritaEntityMapper;
 import org.springframework.context.annotation.Primary;
@@ -25,26 +25,26 @@ public class JpaBusquedaFavoritaRepository implements BusquedaFavoritaRepository
     }
 
     @Override
-    public Optional<BusquedaFavorita> findById(UUID id) {
+    public Optional<BusquedaFavoritaAlmacenada> findById(UUID id) {
         return jpaRepository.findById(id).map(mapper::toDomain);
     }
 
     @Override
-    public List<BusquedaFavorita> findByUsuarioId(UUID usuarioId) {
+    public List<BusquedaFavoritaAlmacenada> findByUsuarioId(UUID usuarioId) {
         return jpaRepository.findByUsuarioId(usuarioId).stream()
                 .map(mapper::toDomain)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<BusquedaFavorita> findAlertasActivas() {
+    public List<BusquedaFavoritaAlmacenada> findAlertasActivas() {
         return jpaRepository.findByAlertaActivaTrue().stream()
                 .map(mapper::toDomain)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public BusquedaFavorita save(BusquedaFavorita busqueda) {
+    public BusquedaFavoritaAlmacenada save(BusquedaFavoritaAlmacenada busqueda) {
         return mapper.toDomain(jpaRepository.save(mapper.toEntity(busqueda)));
     }
 }

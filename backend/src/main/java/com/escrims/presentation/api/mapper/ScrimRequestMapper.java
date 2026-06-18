@@ -28,6 +28,6 @@ public final class ScrimRequestMapper {
         if (rango == null) {
             throw new IllegalArgumentException("Rango requerido");
         }
-        return new Rango(rango.getJuego(), rango.getTier(), rango.getNumerico());
+        return new Rango(null, rango.getTier(), rango.getNumerico());
     }
 }

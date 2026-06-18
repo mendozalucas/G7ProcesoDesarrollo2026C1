@@ -9,7 +9,8 @@ import java.util.UUID;
 public class PostulacionEntity {
 
     @Id
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(nullable = false)
     private UUID usuarioId;
@@ -22,8 +23,8 @@ public class PostulacionEntity {
     private String estado;
     private LocalDateTime fechaPostulacion;
 
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
     public UUID getUsuarioId() { return usuarioId; }
     public void setUsuarioId(UUID usuarioId) { this.usuarioId = usuarioId; }
     public UUID getScrimId() { return scrimId; }

@@ -8,34 +8,43 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 public class InMemoryPostulacionRepository implements PostulacionRepository {
 
-    private final Map<UUID, Postulacion> store = new ConcurrentHashMap<>();
+    private final Map<Long, Postulacion> store = new ConcurrentHashMap<>();
+    private final AtomicLong idGenerator = new AtomicLong(1);
 
     @Override
-    public Optional<Postulacion> findById(UUID id) {
+    public Optional<Postulacion> findById(Long id) {
         return Optional.ofNullable(store.get(id));
     }
 
     @Override
     public List<Postulacion> findByScrimId(UUID scrimId) {
         return store.values().stream()
-                .filter(p -> p.getScrimId().equals(scrimId))
+                .filter(p -> p.getScrim().getId().equals(scrimId))
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<Postulacion> findByUsuarioId(UUID usuarioId) {
         return store.values().stream()
-                .filter(p -> p.getUsuarioId().equals(usuarioId))
+                .filter(p -> p.getUsuario().getId().equals(usuarioId))
                 .collect(Collectors.toList());
     }
 
     @Override
     public Postulacion save(Postulacion postulacion) {
-        store.put(postulacion.getId(), postulacion);
-        return postulacion;
+        Long id = postulacion.getId() != null ? postulacion.getId() : idGenerator.getAndIncrement();
+        Postulacion guardada = new Postulacion(
+                id,
+                postulacion.getUsuario(),
+                postulacion.getScrim(),
+                postulacion.getRolDeseado(),
+                postulacion.getEstado());
+        store.put(id, guardada);
+        return guardada;
     }
 }
