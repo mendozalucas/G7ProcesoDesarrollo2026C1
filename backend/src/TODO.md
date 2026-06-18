@@ -4,6 +4,7 @@ Pendientes detectados al alinear `TPO Proceso.drawio` con `src/`.
 
 ## Diagrama (corregir en draw.io)
 
+- [ ] **Jugador / Region / PreferenciasUsuario /DisponibilidadHoraria**: Entidades que se deben agregar en el código del modelo.
 - [ ] **Scrim**: eliminar atributo basura `- hhuhiun`.
 - [ ] **Scrim**: unificar tipos de ID (`Long` en diagrama vs `UUID` en código).
 - [ ] **Scrim**: el diagrama muestra `organizador: Usuario` y `mvp: Usuario`; el código usa `organizadorId` (UUID) y no modela MVP en Scrim.
