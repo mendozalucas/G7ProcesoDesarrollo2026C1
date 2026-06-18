@@ -1,6 +1,5 @@
 package com.escrims.domain.repository;
 
-import com.escrims.domain.model.scrim.Scrim;
 import com.escrims.domain.model.usuario.Usuario;
 
 import java.util.List;
@@ -15,9 +14,7 @@ public interface UsuarioRepository {
 
     Optional<Usuario> findByUsername(String username);
 
-    Optional<Usuario> findByCredencialOAuth(String proveedorNombre, String externalId);
-
-    List<Usuario> findCandidatosParaScrim(Scrim scrim);
-
     Usuario save(Usuario usuario);
+
+    List<Usuario> findAll();
 }

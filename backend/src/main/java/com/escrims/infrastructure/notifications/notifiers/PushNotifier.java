@@ -1,8 +1,13 @@
 package com.escrims.infrastructure.notifications.notifiers;
 
-import java.util.UUID;
+public class PushNotifier implements Notifier {
 
-public interface PushNotifier {
+    private String firebaseToken;
 
-    void enviarPush(UUID destinatarioId, String titulo, String cuerpo);
+    public PushNotifier(String firebaseToken) {
+        this.firebaseToken = firebaseToken;
+    }
+
+    @Override
+    public void enviar(String mensaje, String destino) {}
 }

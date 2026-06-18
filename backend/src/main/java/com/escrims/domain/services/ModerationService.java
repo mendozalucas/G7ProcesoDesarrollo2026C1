@@ -2,11 +2,7 @@ package com.escrims.domain.services;
 
 import com.escrims.domain.moderation.ModerationHandler;
 import com.escrims.domain.model.reporte.ReporteConducta;
-import com.escrims.domain.model.usuario.Usuario;
 import com.escrims.domain.repository.UsuarioRepository;
-import com.escrims.domain.strategy.sancion.SancionEstrategia;
-
-import java.util.UUID;
 
 public class ModerationService {
 
@@ -20,16 +16,5 @@ public class ModerationService {
 
     public void procesarReporte(ReporteConducta reporte) {
         handlerChain.handle(reporte);
-        SancionEstrategia sancion = reporte.getSancion();
-        if (sancion != null) {
-            aplicarSancion(reporte.getReportadoId(), sancion);
-        }
-    }
-
-    private void aplicarSancion(UUID usuarioId, SancionEstrategia sancion) {
-        usuarioRepository.findById(usuarioId).ifPresent(u -> {
-            sancion.aplicar(u);
-            usuarioRepository.save(u);
-        });
     }
 }

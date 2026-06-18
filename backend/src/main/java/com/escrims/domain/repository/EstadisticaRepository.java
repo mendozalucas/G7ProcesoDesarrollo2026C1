@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface EstadisticaRepository {
 
-    Optional<Estadistica> findById(UUID id);
+    Optional<Estadistica> findById(Long id);
 
     List<Estadistica> findByScrimId(UUID scrimId);
 

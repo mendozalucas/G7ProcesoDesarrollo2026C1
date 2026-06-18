@@ -1,11 +1,11 @@
 package com.escrims.infrastructure.notifications.impl.dev;
 
-import com.escrims.infrastructure.notifications.notifiers.EmailNotifier;
+import com.escrims.infrastructure.notifications.notifiers.Notifier;
 
-public class LogEmailNotifier implements EmailNotifier {
+public class LogEmailNotifier implements Notifier {
 
     @Override
-    public void enviarEmail(String destinatario, String asunto, String cuerpo) {
-        System.out.printf("[DEV-EMAIL] to=%s | %s: %s%n", destinatario, asunto, cuerpo);
+    public void enviar(String mensaje, String destino) {
+        System.out.printf("[DEV-EMAIL] to=%s | %s%n", destino, mensaje);
     }
 }

@@ -6,11 +6,9 @@ import com.escrims.infrastructure.adapters.SendGridClient;
 import com.escrims.infrastructure.notifications.impl.prod.DiscordWebhookAdapter;
 import com.escrims.infrastructure.notifications.impl.prod.FirebaseAdapter;
 import com.escrims.infrastructure.notifications.impl.prod.SendGridAdapter;
-import com.escrims.infrastructure.notifications.notifiers.DiscordNotifier;
-import com.escrims.infrastructure.notifications.notifiers.EmailNotifier;
-import com.escrims.infrastructure.notifications.notifiers.PushNotifier;
+import com.escrims.infrastructure.notifications.notifiers.Notifier;
 
-public class ProdNotifierFactory implements NotifierFactory {
+public class ProdNotifierFactory implements INotifierFactory {
 
     private final FirebaseMessagingClient firebaseClient;
     private final SendGridClient sendGridClient;
@@ -25,17 +23,17 @@ public class ProdNotifierFactory implements NotifierFactory {
     }
 
     @Override
-    public PushNotifier crearPushNotifier() {
+    public Notifier crearPushNotifier() {
         return new FirebaseAdapter(firebaseClient);
     }
 
     @Override
-    public EmailNotifier crearEmailNotifier() {
+    public Notifier crearEmailNotifier() {
         return new SendGridAdapter(sendGridClient);
     }
 
     @Override
-    public DiscordNotifier crearDiscordNotifier() {
+    public Notifier crearDiscordNotifier() {
         return new DiscordWebhookAdapter(discordClient);
     }
 }

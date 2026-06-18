@@ -20,6 +20,6 @@ public class CS2Juego extends Juego {
 
     @Override
     public boolean validarReglasEspecificas(Scrim scrim) {
-        return scrim.getFormato().getJugadoresPorLado() == 5;
+        return true;
     }
 }

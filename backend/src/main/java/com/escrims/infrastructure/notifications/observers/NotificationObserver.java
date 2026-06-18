@@ -2,18 +2,15 @@ package com.escrims.infrastructure.notifications.observers;
 
 import com.escrims.domain.events.*;
 import com.escrims.domain.observer.IObserver;
-import com.escrims.domain.repository.UsuarioRepository;
-import com.escrims.infrastructure.notifications.factory.NotifierFactory;
-import com.escrims.infrastructure.notifications.notifiers.PushNotifier;
+import com.escrims.infrastructure.notifications.factory.INotifierFactory;
+import com.escrims.infrastructure.notifications.notifiers.Notifier;
 
 public class NotificationObserver implements IObserver, DomainEventVisitor {
 
-    private final NotifierFactory notifierFactory;
-    private final UsuarioRepository usuarioRepository;
+    private final INotifierFactory factory;
 
-    public NotificationObserver(NotifierFactory notifierFactory, UsuarioRepository usuarioRepository) {
-        this.notifierFactory = notifierFactory;
-        this.usuarioRepository = usuarioRepository;
+    public NotificationObserver(INotifierFactory factory) {
+        this.factory = factory;
     }
 
     @Override
@@ -23,16 +20,16 @@ public class NotificationObserver implements IObserver, DomainEventVisitor {
 
     @Override
     public void visit(LobbyArmadoEvent e) {
-        PushNotifier push = notifierFactory.crearPushNotifier();
+        Notifier push = factory.crearPushNotifier();
         e.getParticipantesIds().forEach(uid ->
-                push.enviarPush(uid, "Lobby armado", "Tu scrim esta completo. Confirma tu asistencia!"));
+                push.enviar("Tu scrim esta completo. Confirma tu asistencia!", uid.toString()));
     }
 
     @Override
     public void visit(ConfirmadoEvent e) {
-        PushNotifier push = notifierFactory.crearPushNotifier();
+        Notifier push = factory.crearPushNotifier();
         e.getParticipantesIds().forEach(uid ->
-                push.enviarPush(uid, "Scrim confirmado", "Todos confirmaron. Nos vemos en la partida!"));
+                push.enviar("Todos confirmaron. Nos vemos en la partida!", uid.toString()));
     }
 
     @Override
@@ -52,14 +49,14 @@ public class NotificationObserver implements IObserver, DomainEventVisitor {
 
     @Override
     public void visit(PostulacionAceptadaEvent e) {
-        notifierFactory.crearPushNotifier()
-                .enviarPush(e.getUsuarioId(), "Postulacion aceptada!", "Fuiste aceptado en el scrim.");
+        factory.crearPushNotifier()
+                .enviar("Fuiste aceptado en el scrim.", e.getUsuarioId().toString());
     }
 
     @Override
     public void visit(NuevoScrimDisponibleEvent e) {
-        PushNotifier push = notifierFactory.crearPushNotifier();
+        Notifier push = factory.crearPushNotifier();
         e.getUsuariosANotificar().forEach(uid ->
-                push.enviarPush(uid, "Nuevo scrim disponible", "Hay un scrim que coincide con tu busqueda."));
+                push.enviar("Hay un scrim que coincide con tu busqueda.", uid.toString()));
     }
 }

@@ -1,59 +1,44 @@
 package com.escrims.domain.model.scrim;
 
 import com.escrims.domain.events.DomainEvent;
-import com.escrims.domain.events.ScrimCreadoEvent;
 import com.escrims.domain.model.juego.Juego;
+import com.escrims.domain.model.usuario.Usuario;
 import com.escrims.domain.state.ScrimState;
-import com.escrims.domain.state.ScrimStateFactory;
-import com.escrims.domain.valueobjects.*;
+import com.escrims.domain.state.BuscandoJugadoresState;
+import com.escrims.domain.valueobjects.Rango;
+import com.escrims.domain.valueobjects.Region;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class Scrim {
 
     private final UUID id;
-    private final Juego juego;
-    private final FormatoScrim formato;
-    private final Region region;
-    private final RangosPermitidos rangosPermitidos;
-    private final Latencia latenciaMax;
-    private final LocalDateTime fechaHora;
-    private final Duration duracionEstimada;
-    private final Modalidad modalidad;
-    private final Map<RolJuego, Integer> reglasRoles;
-    private final UUID organizadorId;
-    private final List<Equipo> equipos;
-    private final List<Confirmacion> confirmaciones;
+    private Juego juego;
+    private Usuario organizador;
+    private Region region;
+    private Rango rangoMin;
+    private Rango rangoMax;
+    private int latenciaMax;
+    private LocalDateTime fechaHora;
     private ScrimState currentState;
     private String motivoCancelacion;
     private final List<DomainEvent> domainEvents;
 
-    public Scrim(UUID id, Juego juego, FormatoScrim formato, Region region,
-          RangosPermitidos rangosPermitidos, Latencia latenciaMax,
-          LocalDateTime fechaHora, Duration duracionEstimada,
-          Modalidad modalidad, Map<RolJuego, Integer> reglasRoles,
-          UUID organizadorId) {
-        this(id, juego, formato, region, rangosPermitidos, latenciaMax, fechaHora,
-                duracionEstimada, modalidad, reglasRoles, organizadorId, true);
-    }
-
-    public void agregarJugador(UUID usuarioId, LadoEquipo lado, RolJuego rol) {
-        currentState.agregarJugador(this, usuarioId, lado, rol);
-    }
-
-    public void confirmarParticipacion(UUID usuarioId) {
-        currentState.confirmarParticipacion(this, usuarioId);
-    }
-
-    public void iniciar() {
-        currentState.iniciar(this);
-    }
-
-    public void finalizar() {
-        currentState.finalizar(this);
+    public Scrim(UUID id, Juego juego, Usuario organizador, Region region,
+                 Rango rangoMin, Rango rangoMax, int latenciaMax, LocalDateTime fechaHora) {
+        this.id = id;
+        this.juego = juego;
+        this.organizador = organizador;
+        this.region = region;
+        this.rangoMin = rangoMin;
+        this.rangoMax = rangoMax;
+        this.latenciaMax = latenciaMax;
+        this.fechaHora = fechaHora;
+        this.currentState = new BuscandoJugadoresState();
+        this.domainEvents = new ArrayList<>();
     }
 
     public void cancelar(String motivo) {
@@ -65,45 +50,12 @@ public class Scrim {
         currentState.avanzar(this);
     }
 
-    public String getEstadoNombre() { return currentState.getNombreEstado(); }
-
-    public boolean estaCompleto() {
-        return equipos.stream().allMatch(e -> e.estaCompleto(formato.getJugadoresPorLado()));
+    public void cambiarEstado(ScrimState nuevoEstado) {
+        this.currentState = nuevoEstado;
     }
 
-    public boolean todosConfirmaron() {
-        return !confirmaciones.isEmpty()
-                && confirmaciones.stream().noneMatch(Confirmacion::esPendiente);
-    }
-
-    public boolean permiteModificarRoles() {
-        return currentState.permiteModificarRoles();
-    }
-
-    public int getCuposDisponibles() {
-        int ocupados = equipos.stream().mapToInt(Equipo::getCuposOcupados).sum();
-        return formato.getTotalJugadores() - ocupados;
-    }
-
-    public List<UUID> getParticipantesIds() {
-        return equipos.stream()
-                .flatMap(e -> e.getParticipanteIds().stream())
-                .collect(Collectors.toList());
-    }
-
-    public void cambiarEstado(ScrimState nuevoEstado) { this.currentState = nuevoEstado; }
-    public void agregarEvento(DomainEvent event) { this.domainEvents.add(event); }
-
-    public void agregarParticipanteInterno(UUID usuarioId, LadoEquipo lado, RolJuego rol) {
-        equipos.stream().filter(e -> e.getLado().equals(lado)).findFirst()
-               .ifPresent(e -> e.agregarParticipante(usuarioId, rol));
-        confirmaciones.add(new Confirmacion(usuarioId));
-    }
-
-    public void confirmarParticipanteInterno(UUID usuarioId) {
-        confirmaciones.stream()
-                .filter(c -> c.getUsuarioId().equals(usuarioId) && c.esPendiente())
-                .findFirst().ifPresent(Confirmacion::confirmar);
+    public void agregarEvento(DomainEvent event) {
+        this.domainEvents.add(event);
     }
 
     public List<DomainEvent> recolectarEventos() {
@@ -112,66 +64,16 @@ public class Scrim {
         return eventos;
     }
 
+    public String getEstadoNombre() { return currentState.getNombreEstado(); }
+    public String getMotivoCancelacion() { return motivoCancelacion != null ? motivoCancelacion : ""; }
+
     public UUID getId() { return id; }
     public Juego getJuego() { return juego; }
-    public String getNombreJuego() { return juego.getNombre(); }
-    public FormatoScrim getFormato() { return formato; }
+    public Usuario getOrganizador() { return organizador; }
     public Region getRegion() { return region; }
-    public RangosPermitidos getRangosPermitidos() { return rangosPermitidos; }
-    public Latencia getLatenciaMax() { return latenciaMax; }
+    public Rango getRangoMin() { return rangoMin; }
+    public Rango getRangoMax() { return rangoMax; }
+    public int getLatenciaMax() { return latenciaMax; }
     public LocalDateTime getFechaHora() { return fechaHora; }
-    public Duration getDuracionEstimada() { return duracionEstimada; }
-    public Modalidad getModalidad() { return modalidad; }
-    public Map<RolJuego, Integer> getReglasRoles() { return reglasRoles; }
-    public UUID getOrganizadorId() { return organizadorId; }
-    public List<Equipo> getEquipos() { return Collections.unmodifiableList(equipos); }
-    public List<Confirmacion> getConfirmaciones() { return Collections.unmodifiableList(confirmaciones); }
-    public String getMotivoCancelacion() { return motivoCancelacion != null ? motivoCancelacion : ""; }
     public ScrimState getCurrentState() { return currentState; }
-
-    public static Scrim reconstituir(UUID id, Juego juego, FormatoScrim formato, Region region,
-                                     RangosPermitidos rangosPermitidos, Latencia latenciaMax,
-                                     LocalDateTime fechaHora, Duration duracionEstimada,
-                                     Modalidad modalidad, Map<RolJuego, Integer> reglasRoles,
-                                     UUID organizadorId, String estadoNombre,
-                                     String motivoCancelacion, List<Equipo> equiposRestaurados,
-                                     List<Confirmacion> confirmacionesRestauradas) {
-        Scrim scrim = new Scrim(id, juego, formato, region, rangosPermitidos, latenciaMax,
-                fechaHora, duracionEstimada, modalidad, reglasRoles, organizadorId, false);
-        scrim.currentState = ScrimStateFactory.para(estadoNombre);
-        scrim.motivoCancelacion = motivoCancelacion;
-        scrim.equipos.clear();
-        scrim.equipos.addAll(equiposRestaurados);
-        scrim.confirmaciones.clear();
-        scrim.confirmaciones.addAll(confirmacionesRestauradas);
-        return scrim;
-    }
-
-    private Scrim(UUID id, Juego juego, FormatoScrim formato, Region region,
-                  RangosPermitidos rangosPermitidos, Latencia latenciaMax,
-                  LocalDateTime fechaHora, Duration duracionEstimada,
-                  Modalidad modalidad, Map<RolJuego, Integer> reglasRoles,
-                  UUID organizadorId, boolean emitirEventoCreacion) {
-        this.id = id;
-        this.juego = juego;
-        this.formato = formato;
-        this.region = region;
-        this.rangosPermitidos = rangosPermitidos;
-        this.latenciaMax = latenciaMax;
-        this.fechaHora = fechaHora;
-        this.duracionEstimada = duracionEstimada;
-        this.modalidad = modalidad;
-        this.reglasRoles = Collections.unmodifiableMap(new HashMap<>(reglasRoles));
-        this.organizadorId = organizadorId;
-        this.equipos = new ArrayList<>(List.of(
-                new Equipo(LadoEquipo.EQUIPO_A),
-                new Equipo(LadoEquipo.EQUIPO_B)
-        ));
-        this.confirmaciones = new ArrayList<>();
-        this.domainEvents = new ArrayList<>();
-        this.currentState = new com.escrims.domain.state.BuscandoJugadoresState();
-        if (emitirEventoCreacion) {
-            this.domainEvents.add(new ScrimCreadoEvent(id, juego.getNombre(), region, formato, fechaHora));
-        }
-    }
 }

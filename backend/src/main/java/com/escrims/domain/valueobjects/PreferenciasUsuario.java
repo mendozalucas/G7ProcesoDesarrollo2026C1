@@ -1,22 +1,18 @@
 package com.escrims.domain.valueobjects;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 
-/**
- * Value Object.
- * Removido CanalNotificacion (enum): el canal preferido
- * queda encapsulado en la Abstract Factory al momento de notificar.
- */
 public final class PreferenciasUsuario {
 
-    private final List<String> juegosPreferidos;
-    private final boolean recibirAlertas;
+    private final DisponibilidadHoraria disponibilidadHoraria;
+    private final boolean recibirEmail;
+    private final boolean recibirPush;
 
-    public PreferenciasUsuario(List<String> juegosPreferidos, boolean recibirAlertas) {
-        this.juegosPreferidos = Collections.unmodifiableList(juegosPreferidos);
-        this.recibirAlertas = recibirAlertas;
+    public PreferenciasUsuario(DisponibilidadHoraria disponibilidadHoraria,
+                                boolean recibirEmail, boolean recibirPush) {
+        this.disponibilidadHoraria = disponibilidadHoraria;
+        this.recibirEmail = recibirEmail;
+        this.recibirPush = recibirPush;
     }
 
     @Override
@@ -24,15 +20,17 @@ public final class PreferenciasUsuario {
         if (this == o) return true;
         if (!(o instanceof PreferenciasUsuario)) return false;
         PreferenciasUsuario that = (PreferenciasUsuario) o;
-        return recibirAlertas == that.recibirAlertas
-                && Objects.equals(juegosPreferidos, that.juegosPreferidos);
+        return recibirEmail == that.recibirEmail
+                && recibirPush == that.recibirPush
+                && Objects.equals(disponibilidadHoraria, that.disponibilidadHoraria);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(juegosPreferidos, recibirAlertas);
+        return Objects.hash(disponibilidadHoraria, recibirEmail, recibirPush);
     }
 
-    public List<String> getJuegosPreferidos() { return juegosPreferidos; }
-    public boolean isRecibirAlertas() { return recibirAlertas; }
+    public DisponibilidadHoraria getDisponibilidadHoraria() { return disponibilidadHoraria; }
+    public boolean isRecibirEmail() { return recibirEmail; }
+    public boolean isRecibirPush() { return recibirPush; }
 }

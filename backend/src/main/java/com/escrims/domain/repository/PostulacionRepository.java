@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface PostulacionRepository {
 
-    Optional<Postulacion> findById(UUID id);
+    Optional<Postulacion> findById(Long id);
 
     List<Postulacion> findByScrimId(UUID scrimId);
 

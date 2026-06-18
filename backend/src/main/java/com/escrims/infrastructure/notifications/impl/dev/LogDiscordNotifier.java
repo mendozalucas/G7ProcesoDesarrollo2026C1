@@ -1,11 +1,11 @@
 package com.escrims.infrastructure.notifications.impl.dev;
 
-import com.escrims.infrastructure.notifications.notifiers.DiscordNotifier;
+import com.escrims.infrastructure.notifications.notifiers.Notifier;
 
-public class LogDiscordNotifier implements DiscordNotifier {
+public class LogDiscordNotifier implements Notifier {
 
     @Override
-    public void enviarMensaje(String webhookUrl, String mensaje) {
-        System.out.printf("[DEV-DISCORD] webhook=%s | %s%n", webhookUrl, mensaje);
+    public void enviar(String mensaje, String destino) {
+        System.out.printf("[DEV-DISCORD] webhook=%s | %s%n", destino, mensaje);
     }
 }

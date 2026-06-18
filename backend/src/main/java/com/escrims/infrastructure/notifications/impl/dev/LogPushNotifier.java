@@ -1,13 +1,11 @@
 package com.escrims.infrastructure.notifications.impl.dev;
 
-import com.escrims.infrastructure.notifications.notifiers.PushNotifier;
+import com.escrims.infrastructure.notifications.notifiers.Notifier;
 
-import java.util.UUID;
-
-public class LogPushNotifier implements PushNotifier {
+public class LogPushNotifier implements Notifier {
 
     @Override
-    public void enviarPush(UUID destinatarioId, String titulo, String cuerpo) {
-        System.out.printf("[DEV-PUSH] to=%s | %s: %s%n", destinatarioId, titulo, cuerpo);
+    public void enviar(String mensaje, String destino) {
+        System.out.printf("[DEV-PUSH] to=%s | %s%n", destino, mensaje);
     }
 }

@@ -3,24 +3,22 @@ package com.escrims.infrastructure.notifications.factory;
 import com.escrims.infrastructure.notifications.impl.dev.LogDiscordNotifier;
 import com.escrims.infrastructure.notifications.impl.dev.LogEmailNotifier;
 import com.escrims.infrastructure.notifications.impl.dev.LogPushNotifier;
-import com.escrims.infrastructure.notifications.notifiers.DiscordNotifier;
-import com.escrims.infrastructure.notifications.notifiers.EmailNotifier;
-import com.escrims.infrastructure.notifications.notifiers.PushNotifier;
+import com.escrims.infrastructure.notifications.notifiers.Notifier;
 
-public class DevNotifierFactory implements NotifierFactory {
+public class DevNotifierFactory implements INotifierFactory {
 
     @Override
-    public PushNotifier crearPushNotifier() {
+    public Notifier crearPushNotifier() {
         return new LogPushNotifier();
     }
 
     @Override
-    public EmailNotifier crearEmailNotifier() {
+    public Notifier crearEmailNotifier() {
         return new LogEmailNotifier();
     }
 
     @Override
-    public DiscordNotifier crearDiscordNotifier() {
+    public Notifier crearDiscordNotifier() {
         return new LogDiscordNotifier();
     }
 }

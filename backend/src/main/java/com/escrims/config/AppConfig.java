@@ -20,7 +20,7 @@ import com.escrims.domain.repository.EstadisticaRepository;
 import com.escrims.domain.repository.PostulacionRepository;
 import com.escrims.domain.repository.ReporteConductaRepository;
 import com.escrims.infrastructure.notifications.factory.DevNotifierFactory;
-import com.escrims.infrastructure.notifications.factory.NotifierFactory;
+import com.escrims.infrastructure.notifications.factory.INotifierFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -38,7 +38,7 @@ public class AppConfig {
     }
 
     @Bean
-    NotifierFactory notifierFactory() {
+    INotifierFactory notifierFactory() {
         return new DevNotifierFactory();
     }
 
@@ -48,10 +48,8 @@ public class AppConfig {
     }
 
     @Bean
-    MatchmakingService matchmakingService(IMatchmakingStrategy defaultMatchmakingStrategy,
-                                          ScrimRepository scrimRepository,
-                                          UsuarioRepository usuarioRepository) {
-        return new MatchmakingService(defaultMatchmakingStrategy, scrimRepository, usuarioRepository);
+    MatchmakingService matchmakingService(IMatchmakingStrategy defaultMatchmakingStrategy) {
+        return new MatchmakingService(defaultMatchmakingStrategy);
     }
 
     @Bean
@@ -65,9 +63,8 @@ public class AppConfig {
     }
 
     @Bean
-    ScrimLifecycleService scrimLifecycleService(ScrimRepository scrimRepository,
-                                                 DomainEventBus eventBus) {
-        return new ScrimLifecycleService(scrimRepository, eventBus);
+    ScrimLifecycleService scrimLifecycleService(DomainEventBus eventBus) {
+        return new ScrimLifecycleService(eventBus);
     }
 
     @Bean

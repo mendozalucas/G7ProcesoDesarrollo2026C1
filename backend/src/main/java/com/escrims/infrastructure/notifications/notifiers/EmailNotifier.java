@@ -1,6 +1,15 @@
 package com.escrims.infrastructure.notifications.notifiers;
 
-public interface EmailNotifier {
+public class EmailNotifier implements Notifier {
 
-    void enviarEmail(String destinatario, String asunto, String cuerpo);
+    private INotificadorEmail adapter;
+
+    public EmailNotifier(INotificadorEmail adapter) {
+        this.adapter = adapter;
+    }
+
+    @Override
+    public void enviar(String mensaje, String destino) {
+        adapter.enviar(mensaje, destino);
+    }
 }
