@@ -1,14 +1,8 @@
 package com.escrims.domain.model.usuario;
 
-import com.escrims.domain.model.postulacion.EstadoPostulacion;
-import com.escrims.domain.model.postulacion.Postulacion;
-import com.escrims.domain.model.rol.Rol;
-import com.escrims.domain.model.scrim.Confirmacion;
-import com.escrims.domain.model.scrim.Scrim;
-
 import java.util.UUID;
 
-public class Usuario {
+public abstract class Usuario {
 
     private final UUID id;
     private String username;
@@ -16,7 +10,7 @@ public class Usuario {
     private String passwordHash;
     private boolean verificado;
 
-    public Usuario(UUID id, String username, String email, String passwordHash) {
+    protected Usuario(UUID id, String username, String email, String passwordHash) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -24,13 +18,7 @@ public class Usuario {
         this.verificado = false;
     }
 
-    public Postulacion postular(Scrim scrim, Rol rol) {
-        return new Postulacion(null, this, scrim, rol, EstadoPostulacion.PENDIENTE);
-    }
-
-    public Confirmacion confirmar(Scrim scrim) {
-        return new Confirmacion(null, this, scrim, true);
-    }
+    public abstract String getTipoUsuario();
 
     public UUID getId() { return id; }
     public String getUsername() { return username; }

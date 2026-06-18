@@ -1,6 +1,6 @@
 package com.escrims.domain.model.scrim;
 
-import com.escrims.domain.model.usuario.Usuario;
+import com.escrims.domain.model.usuario.Jugador;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,7 +10,7 @@ public class Equipo {
 
     private Long id;
     private String nombre;
-    private List<Usuario> jugadores;
+    private List<Jugador> jugadores;
 
     public Equipo(Long id, String nombre) {
         this.id = id;
@@ -18,16 +18,18 @@ public class Equipo {
         this.jugadores = new ArrayList<>();
     }
 
-    public void agregarJugador(Usuario usuario) {
-        jugadores.add(usuario);
+    public void agregarJugador(Jugador jugador) {
+        if (!jugadores.contains(jugador)) {
+            jugadores.add(jugador);
+        }
     }
 
-    public void quitarJugador(Usuario usuario) {
-        jugadores.remove(usuario);
+    public void quitarJugador(Jugador jugador) {
+        jugadores.remove(jugador);
     }
 
     public Long getId() { return id; }
     public String getNombre() { return nombre; }
-    public List<Usuario> getJugadores() { return Collections.unmodifiableList(jugadores); }
+    public List<Jugador> getJugadores() { return Collections.unmodifiableList(jugadores); }
     public int getCuposOcupados() { return jugadores.size(); }
 }

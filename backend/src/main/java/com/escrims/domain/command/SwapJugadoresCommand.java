@@ -1,25 +1,25 @@
 package com.escrims.domain.command;
 
-import com.escrims.domain.model.scrim.Scrim;
-import com.escrims.domain.model.usuario.Usuario;
+import com.escrims.domain.model.lobby.GestorLobby;
+import com.escrims.domain.model.usuario.Jugador;
 
-public class SwapJugadoresCommand implements ScrimCommand {
+public class SwapJugadoresCommand implements LobbyCommand {
 
-    private final Usuario jugador1;
-    private final Usuario jugador2;
+    private final Jugador jugador1;
+    private final Jugador jugador2;
 
-    public SwapJugadoresCommand(Usuario jugador1, Usuario jugador2) {
+    public SwapJugadoresCommand(Jugador jugador1, Jugador jugador2) {
         this.jugador1 = jugador1;
         this.jugador2 = jugador2;
     }
 
     @Override
-    public void ejecutar(Scrim scrim) {
-        throw new UnsupportedOperationException("SwapJugadoresCommand.ejecutar no implementado");
+    public void ejecutar(GestorLobby gestorLobby) {
+        gestorLobby.swapJugadores(jugador1, jugador2);
     }
 
     @Override
-    public void deshacer(Scrim scrim) {
-        throw new UnsupportedOperationException("SwapJugadoresCommand.deshacer no implementado");
+    public void deshacer(GestorLobby gestorLobby) {
+        gestorLobby.swapJugadores(jugador1, jugador2);
     }
 }

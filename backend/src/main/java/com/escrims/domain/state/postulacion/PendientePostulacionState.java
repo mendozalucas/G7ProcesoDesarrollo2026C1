@@ -6,12 +6,12 @@ public class PendientePostulacionState implements PostulacionState {
 
     @Override
     public void aceptar(Postulacion ctx) {
-        ctx.aceptar();
+        ctx.transicionarA(new AceptadaPostulacionState());
     }
 
     @Override
     public void rechazar(Postulacion ctx) {
-        ctx.rechazar();
+        ctx.transicionarA(new RechazadaPostulacionState());
     }
 
     @Override

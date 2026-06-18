@@ -2,6 +2,7 @@ package com.escrims.domain.moderation;
 
 import com.escrims.domain.events.ReporteConductaRegistradoEvent;
 import com.escrims.domain.model.reporte.ReporteConducta;
+import com.escrims.domain.model.usuario.Moderador;
 import com.escrims.domain.observer.DomainEventBus;
 
 import java.util.UUID;
@@ -9,17 +10,18 @@ import java.util.UUID;
 public class HumanModerationHandler extends ModerationHandler {
 
     private final DomainEventBus eventBus;
-    private final Moderator moderator;
+    private final Moderador moderador;
 
-    public HumanModerationHandler(DomainEventBus eventBus, Moderator moderator) {
+    public HumanModerationHandler(DomainEventBus eventBus, Moderador moderador) {
         this.eventBus = eventBus;
-        this.moderator = moderator;
+        this.moderador = moderador;
     }
 
     @Override
     public void handle(ReporteConducta reporte) {
+        moderador.revisarReporte(reporte);
         eventBus.publish(new ReporteConductaRegistradoEvent(UUID.randomUUID(), null));
     }
 
-    public Moderator getModerator() { return moderator; }
+    public Moderador getModerador() { return moderador; }
 }

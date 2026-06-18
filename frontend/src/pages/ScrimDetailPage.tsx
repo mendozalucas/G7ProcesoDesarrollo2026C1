@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ApiError, api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import type { Postulacion, Scrim } from '../types';
-import { formatRegion } from '../utils/scrim';
+import { formatFormato, formatModalidad, formatRegion } from '../utils/scrim';
 import { isSessionInvalid, redirectToLogin } from '../utils/session';
 
 const ESTADO_LABEL: Record<string, string> = {
@@ -168,11 +168,21 @@ export function ScrimDetailPage() {
         </div>
         <h1>{formatRegion(scrim.region)}</h1>
         <p className="muted">
+          {formatFormato(scrim.jugadoresPorLado, scrim.formato)}
+          {' · '}
+          {formatModalidad(scrim.modalidad)}
+          {' · '}
           {new Date(scrim.fechaHora).toLocaleString('es-AR')}
           {' · '}
           {scrim.rangoMinMmr}–{scrim.rangoMaxMmr} MMR
           {' · '}
           ≤ {scrim.latenciaMaxMs} ms
+          {scrim.participantesLobby > 0 && (
+            <>
+              {' · '}
+              {scrim.participantesLobby} jugador(es) en lobby
+            </>
+          )}
         </p>
       </header>
 
@@ -303,7 +313,8 @@ export function ScrimDetailPage() {
 
             {lobbyYaArmado ? (
               <p className="postulacion-id-hint">
-                Lobby armado. Estado actual: <strong>{estadoLabel}</strong>.
+                Lobby armado con <strong>{scrim.participantesLobby}</strong> jugador(es).
+                Estado actual: <strong>{estadoLabel}</strong>.
               </p>
             ) : (
               <>

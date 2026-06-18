@@ -40,7 +40,7 @@ public class InMemoryPostulacionRepository implements PostulacionRepository {
         Long id = postulacion.getId() != null ? postulacion.getId() : idGenerator.getAndIncrement();
         Postulacion guardada = new Postulacion(
                 id,
-                postulacion.getUsuario(),
+                postulacion.getJugador(),
                 postulacion.getScrim(),
                 postulacion.getRolDeseado(),
                 postulacion.getEstado());

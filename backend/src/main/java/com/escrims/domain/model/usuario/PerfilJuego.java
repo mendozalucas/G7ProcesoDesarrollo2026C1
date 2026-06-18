@@ -27,6 +27,7 @@ public class PerfilJuego {
     }
 
     public Juego getJuego() { return juego; }
+    public Juego getJuegoPrincipal() { return juego; }
     public Region getRegion() { return region; }
     public Integer getMmr() { return mmr; }
     public List<Rol> getRolesPreferidos() { return Collections.unmodifiableList(rolesPreferidos); }

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api/client';
 import type { Scrim } from '../types';
-import { formatRegion } from '../utils/scrim';
+import { formatFormato, formatModalidad, formatRegion } from '../utils/scrim';
 
 const ESTADO_LABEL: Record<string, string> = {
   BUSCANDO: 'Buscando jugadores',
@@ -96,9 +96,13 @@ export function ScrimsPage() {
             </div>
             <h3>{formatRegion(s.region)}</h3>
             <ul className="meta-list">
+              <li>{formatFormato(s.jugadoresPorLado, s.formato)} · {formatModalidad(s.modalidad)}</li>
               <li>Rango {s.rangoMinMmr}–{s.rangoMaxMmr} MMR</li>
               <li>≤ {s.latenciaMaxMs} ms</li>
               <li>{new Date(s.fechaHora).toLocaleString('es-AR')}</li>
+              {s.participantesLobby > 0 && (
+                <li>{s.participantesLobby} en lobby</li>
+              )}
             </ul>
             <div className="scrim-card-footer">
               <Link to={`/scrims/${s.id}`}>Ver detalle</Link>

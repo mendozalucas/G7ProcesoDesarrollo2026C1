@@ -14,16 +14,22 @@ export interface OAuthLoginPayload {
   username: string;
 }
 
+export type ModalidadScrim = 'CASUAL' | 'RANKED_LIKE' | 'PRACTICA_ESTRATOS';
+
 export interface Scrim {
   id: string;
   juego: string;
   estado: string;
   region: string;
+  jugadoresPorLado: number;
+  formato: string;
+  modalidad: string;
   rangoMinMmr: number;
   rangoMaxMmr: number;
   latenciaMaxMs: number;
   fechaHora: string;
   organizadorId: string;
+  participantesLobby: number;
 }
 
 export interface RangoPayload {
@@ -41,12 +47,15 @@ export interface Postulacion {
 
 export interface CreateScrimPayload {
   juego: string;
+  jugadoresPorLado: number;
   servidor: string;
   zona: string;
   rangoMin: RangoPayload;
   rangoMax: RangoPayload;
   latenciaMaxMs: number;
   fechaHora: string;
+  duracionMinutos: number;
+  modalidadNombre: ModalidadScrim;
   organizadorId: string;
 }
 

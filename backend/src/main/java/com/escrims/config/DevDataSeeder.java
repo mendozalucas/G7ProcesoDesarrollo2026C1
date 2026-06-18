@@ -3,7 +3,10 @@ package com.escrims.config;
 import com.escrims.application.dto.CreateScrimDTO;
 import com.escrims.application.usecases.ApplyToScrimUseCase;
 import com.escrims.application.usecases.CreateScrimUseCase;
+import com.escrims.domain.model.usuario.Jugador;
 import com.escrims.domain.model.usuario.Usuario;
+import com.escrims.domain.model.usuario.factory.FactoryJugador;
+import com.escrims.domain.model.usuario.factory.FactoryModerador;
 import com.escrims.domain.repository.UsuarioRepository;
 import com.escrims.domain.valueobjects.Rango;
 import com.escrims.infrastructure.persistence.jpa.ScrimJpaRepository;
@@ -38,17 +41,23 @@ public class DevDataSeeder implements ApplicationRunner {
     private final ApplyToScrimUseCase applyToScrimUseCase;
     private final ScrimJpaRepository scrimJpaRepository;
     private final UsuarioJpaRepository usuarioJpaRepository;
+    private final FactoryJugador factoryJugador;
+    private final FactoryModerador factoryModerador;
 
     public DevDataSeeder(UsuarioRepository usuarioRepository,
                          CreateScrimUseCase createScrimUseCase,
                          ApplyToScrimUseCase applyToScrimUseCase,
                          ScrimJpaRepository scrimJpaRepository,
-                         UsuarioJpaRepository usuarioJpaRepository) {
+                         UsuarioJpaRepository usuarioJpaRepository,
+                         FactoryJugador factoryJugador,
+                         FactoryModerador factoryModerador) {
         this.usuarioRepository = usuarioRepository;
         this.createScrimUseCase = createScrimUseCase;
         this.applyToScrimUseCase = applyToScrimUseCase;
         this.scrimJpaRepository = scrimJpaRepository;
         this.usuarioJpaRepository = usuarioJpaRepository;
+        this.factoryJugador = factoryJugador;
+        this.factoryModerador = factoryModerador;
     }
 
     @Override
@@ -59,7 +68,8 @@ public class DevDataSeeder implements ApplicationRunner {
         }
 
         String passwordHash = PasswordHasher.hash(DEMO_PASSWORD);
-        Usuario organizador = guardarUsuario("organizador_demo", SEED_MARKER_EMAIL, passwordHash);
+        Usuario organizador = guardarJugador("organizador_demo", SEED_MARKER_EMAIL, passwordHash);
+        guardarModerador("moderador_demo", "moderador@escrims.local", passwordHash);
 
         seedJuego("valorant", "NA", "East", organizador.getId(), passwordHash, List.of(
                 driver("driver_val_1", "driver.val1@escrims.local", "Duelist", 1400),
@@ -118,12 +128,18 @@ public class DevDataSeeder implements ApplicationRunner {
         return dto;
     }
 
-    private Usuario guardarUsuario(String username, String email, String passwordHash) {
-        return usuarioRepository.save(new Usuario(UUID.randomUUID(), username, email, passwordHash));
+    private Jugador guardarJugador(String username, String email, String passwordHash) {
+        return (Jugador) usuarioRepository.save(
+                factoryJugador.crearUsuario(UUID.randomUUID(), username, email, passwordHash));
+    }
+
+    private void guardarModerador(String username, String email, String passwordHash) {
+        usuarioRepository.save(
+                factoryModerador.crearUsuario(UUID.randomUUID(), username, email, passwordHash));
     }
 
     private Usuario guardarDriver(DriverSeed driver, String juego, String servidor, String zona, String passwordHash) {
-        Usuario usuario = guardarUsuario(driver.username(), driver.email(), passwordHash);
+        Jugador usuario = guardarJugador(driver.username(), driver.email(), passwordHash);
         usuarioJpaRepository.findById(usuario.getId()).ifPresent(entity -> {
             PerfilEmbeddable perfil = new PerfilEmbeddable();
             perfil.setJuego(juego);

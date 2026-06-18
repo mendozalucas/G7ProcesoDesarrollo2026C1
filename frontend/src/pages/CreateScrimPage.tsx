@@ -2,6 +2,7 @@ import { type FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ApiError, api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import type { ModalidadScrim } from '../types';
 import { isSessionInvalid, redirectToLogin } from '../utils/session';
 
 function normalizeFechaHora(value: string): string {
@@ -27,12 +28,15 @@ export function CreateScrimPage() {
     try {
       const res = await api.createScrim({
         juego,
+        jugadoresPorLado: Number(fd.get('jugadoresPorLado')),
         servidor: String(fd.get('servidor')),
         zona: String(fd.get('zona')),
         rangoMin: { tier: 'Min', numerico: Number(fd.get('rangoMin')) },
         rangoMax: { tier: 'Max', numerico: Number(fd.get('rangoMax')) },
         latenciaMaxMs: Number(fd.get('latenciaMaxMs')),
         fechaHora: normalizeFechaHora(String(fd.get('fechaHora'))),
+        duracionMinutos: Number(fd.get('duracionMinutos')),
+        modalidadNombre: String(fd.get('modalidadNombre')) as ModalidadScrim,
         organizadorId: usuarioId,
       });
       navigate(`/scrims/${res.id}`);
@@ -50,7 +54,7 @@ export function CreateScrimPage() {
   return (
     <div className="page narrow">
       <h1>Crear scrim</h1>
-      <p className="muted">Definí juego, región, rango y horario de la partida.</p>
+      <p className="muted">Definí juego, formato, modalidad, región, rango y horario de la partida.</p>
 
       <form onSubmit={handleSubmit} className="form form-grid">
         <label>
@@ -59,6 +63,23 @@ export function CreateScrimPage() {
             <option value="valorant">Valorant</option>
             <option value="lol">LoL</option>
             <option value="cs2">CS2</option>
+          </select>
+        </label>
+        <label>
+          Formato (jugadores por lado)
+          <select name="jugadoresPorLado" defaultValue={5} required>
+            <option value={1}>1v1</option>
+            <option value={2}>2v2</option>
+            <option value={3}>3v3</option>
+            <option value={5}>5v5</option>
+          </select>
+        </label>
+        <label>
+          Modalidad
+          <select name="modalidadNombre" defaultValue="CASUAL" required>
+            <option value="CASUAL">Casual</option>
+            <option value="RANKED_LIKE">Ranked-like</option>
+            <option value="PRACTICA_ESTRATOS">Práctica por estratos</option>
           </select>
         </label>
         <label>
@@ -80,6 +101,10 @@ export function CreateScrimPage() {
         <label>
           Latencia máx. (ms)
           <input name="latenciaMaxMs" type="number" defaultValue={80} required />
+        </label>
+        <label>
+          Duración estimada (min)
+          <input name="duracionMinutos" type="number" defaultValue={60} min={15} required />
         </label>
         <label className="full-width">
           Fecha y hora

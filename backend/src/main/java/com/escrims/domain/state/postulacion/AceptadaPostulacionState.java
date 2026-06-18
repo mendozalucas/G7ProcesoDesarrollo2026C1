@@ -11,7 +11,7 @@ public class AceptadaPostulacionState implements PostulacionState {
 
     @Override
     public void rechazar(Postulacion ctx) {
-        throw new IllegalStateException("No se puede rechazar una postulación ya aceptada");
+        ctx.transicionarA(new RechazadaPostulacionState());
     }
 
     @Override

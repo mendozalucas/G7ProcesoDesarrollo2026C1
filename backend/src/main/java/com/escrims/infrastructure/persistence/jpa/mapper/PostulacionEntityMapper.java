@@ -4,6 +4,7 @@ import com.escrims.domain.model.postulacion.EstadoPostulacion;
 import com.escrims.domain.model.postulacion.Postulacion;
 import com.escrims.domain.model.rol.Rol;
 import com.escrims.domain.model.scrim.Scrim;
+import com.escrims.domain.model.usuario.Jugador;
 import com.escrims.domain.model.usuario.Usuario;
 import com.escrims.domain.repository.ScrimRepository;
 import com.escrims.domain.repository.UsuarioRepository;
@@ -25,7 +26,10 @@ public class PostulacionEntityMapper {
 
     public Postulacion toDomain(PostulacionEntity entity) {
         Usuario usuario = usuarioRepository.findById(entity.getUsuarioId())
-                .orElseGet(() -> new Usuario(entity.getUsuarioId(), "usuario", "", ""));
+                .orElseGet(() -> new Jugador(entity.getUsuarioId(), "usuario", "", ""));
+        Jugador jugador = usuario instanceof Jugador j
+                ? j
+                : new Jugador(usuario.getId(), usuario.getUsername(), usuario.getEmail(), usuario.getPasswordHash());
         Scrim scrim = scrimRepository.findById(entity.getScrimId())
                 .orElseThrow(() -> new IllegalStateException("Scrim no encontrado: " + entity.getScrimId()));
         Rol rol = entity.getRolNombre() != null ? new Rol(null, entity.getRolNombre()) : null;
@@ -33,7 +37,7 @@ public class PostulacionEntityMapper {
                 ? EstadoPostulacion.valueOf(entity.getEstado().toUpperCase())
                 : EstadoPostulacion.PENDIENTE;
 
-        return new Postulacion(entity.getId(), usuario, scrim, rol, estado);
+        return new Postulacion(entity.getId(), jugador, scrim, rol, estado);
     }
 
     public PostulacionEntity toEntity(Postulacion postulacion) {

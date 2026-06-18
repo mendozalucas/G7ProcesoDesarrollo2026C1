@@ -3,7 +3,16 @@ package com.escrims.presentation.api;
 import com.escrims.application.dto.EstadisticaDTO;
 import com.escrims.application.dto.PostulacionResponseDTO;
 import com.escrims.application.dto.ScrimResponseDTO;
+import com.escrims.application.facade.JugadorFacadeBinder;
+import com.escrims.application.facade.LobbyFacade;
+import com.escrims.application.facade.ModeracionFacade;
+import com.escrims.application.facade.ScrimFacade;
 import com.escrims.application.usecases.*;
+import com.escrims.domain.model.rol.Rol;
+import com.escrims.domain.model.usuario.Jugador;
+import com.escrims.domain.model.usuario.Usuario;
+import com.escrims.domain.repository.ScrimRepository;
+import com.escrims.domain.repository.UsuarioRepository;
 import com.escrims.presentation.api.dto.*;
 import com.escrims.presentation.api.mapper.ScrimRequestMapper;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -19,37 +28,37 @@ import java.util.UUID;
 @RequestMapping("/api/scrims")
 public class ScrimController {
 
-    private final CreateScrimUseCase createScrimUseCase;
+    private final ScrimFacade scrimFacade;
+    private final LobbyFacade lobbyFacade;
     private final SearchScrimsUseCase searchScrimsUseCase;
     private final GetScrimUseCase getScrimUseCase;
-    private final ApplyToScrimUseCase applyToScrimUseCase;
     private final AcceptPostulacionUseCase acceptPostulacionUseCase;
-    private final ConfirmParticipationUseCase confirmParticipationUseCase;
     private final CancelScrimUseCase cancelScrimUseCase;
-    private final FinalizeScrimUseCase finalizeScrimUseCase;
-    private final RunMatchmakingUseCase runMatchmakingUseCase;
     private final ListPostulacionesByScrimUseCase listPostulacionesByScrimUseCase;
+    private final UsuarioRepository usuarioRepository;
+    private final ScrimRepository scrimRepository;
+    private final JugadorFacadeBinder jugadorFacadeBinder;
 
-    public ScrimController(CreateScrimUseCase createScrimUseCase,
+    public ScrimController(ScrimFacade scrimFacade,
+                           LobbyFacade lobbyFacade,
                            SearchScrimsUseCase searchScrimsUseCase,
                            GetScrimUseCase getScrimUseCase,
-                           ApplyToScrimUseCase applyToScrimUseCase,
                            AcceptPostulacionUseCase acceptPostulacionUseCase,
-                           ConfirmParticipationUseCase confirmParticipationUseCase,
                            CancelScrimUseCase cancelScrimUseCase,
-                           FinalizeScrimUseCase finalizeScrimUseCase,
-                           RunMatchmakingUseCase runMatchmakingUseCase,
-                           ListPostulacionesByScrimUseCase listPostulacionesByScrimUseCase) {
-        this.createScrimUseCase = createScrimUseCase;
+                           ListPostulacionesByScrimUseCase listPostulacionesByScrimUseCase,
+                           UsuarioRepository usuarioRepository,
+                           ScrimRepository scrimRepository,
+                           JugadorFacadeBinder jugadorFacadeBinder) {
+        this.scrimFacade = scrimFacade;
+        this.lobbyFacade = lobbyFacade;
         this.searchScrimsUseCase = searchScrimsUseCase;
         this.getScrimUseCase = getScrimUseCase;
-        this.applyToScrimUseCase = applyToScrimUseCase;
         this.acceptPostulacionUseCase = acceptPostulacionUseCase;
-        this.confirmParticipationUseCase = confirmParticipationUseCase;
         this.cancelScrimUseCase = cancelScrimUseCase;
-        this.finalizeScrimUseCase = finalizeScrimUseCase;
-        this.runMatchmakingUseCase = runMatchmakingUseCase;
         this.listPostulacionesByScrimUseCase = listPostulacionesByScrimUseCase;
+        this.usuarioRepository = usuarioRepository;
+        this.scrimRepository = scrimRepository;
+        this.jugadorFacadeBinder = jugadorFacadeBinder;
     }
 
     @GetMapping
@@ -72,7 +81,9 @@ public class ScrimController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Map<String, UUID> crear(@RequestBody CreateScrimRequest request) {
-        return Map.of("id", createScrimUseCase.execute(ScrimRequestMapper.toCommand(request)));
+        Jugador organizador = requerirJugador(request.getOrganizadorId());
+        var scrim = scrimFacade.crearScrim(organizador, ScrimRequestMapper.toCommand(request));
+        return Map.of("id", scrim.getId());
     }
 
     @GetMapping("/{id}/postulaciones")
@@ -83,8 +94,11 @@ public class ScrimController {
     @PostMapping("/{id}/postulaciones")
     @ResponseStatus(HttpStatus.CREATED)
     public Map<String, Long> postularse(@PathVariable UUID id, @RequestBody PostulacionRequest request) {
-        Long postulacionId = applyToScrimUseCase.execute(request.getUsuarioId(), id, request.getRol());
-        return Map.of("postulacionId", postulacionId);
+        Jugador jugador = requerirJugador(request.getUsuarioId());
+        var scrim = scrimRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Scrim no encontrado: " + id));
+        var postulacion = scrimFacade.postularse(jugador, scrim, new Rol(null, request.getRol()));
+        return Map.of("postulacionId", postulacion.getId());
     }
 
     @PostMapping("/{id}/postulaciones/aceptar")
@@ -96,13 +110,16 @@ public class ScrimController {
     @PostMapping("/{id}/confirmaciones")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void confirmar(@PathVariable UUID id, @RequestBody ConfirmacionRequest request) {
-        confirmParticipationUseCase.execute(request.getUsuarioId(), id);
+        Jugador jugador = requerirJugador(request.getUsuarioId());
+        var scrim = scrimRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Scrim no encontrado: " + id));
+        scrimFacade.confirmarJugador(jugador, scrim);
     }
 
     @PostMapping("/{id}/matchmaking")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void ejecutarMatchmaking(@PathVariable UUID id) {
-        runMatchmakingUseCase.execute(id);
+        lobbyFacade.armarLobby(lobbyFacade.lobbyDesdeScrim(id));
     }
 
     @PostMapping("/{id}/cancelar")
@@ -114,6 +131,15 @@ public class ScrimController {
     @PostMapping("/{id}/finalizar")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void finalizar(@PathVariable UUID id, @RequestBody List<EstadisticaDTO> estadisticas) {
-        finalizeScrimUseCase.execute(id, estadisticas);
+        var scrim = scrimRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Scrim no encontrado: " + id));
+        Jugador organizador = requerirJugador(scrim.getOrganizador().getId());
+        scrimFacade.cargarResultados(organizador, scrim, estadisticas);
+    }
+
+    private Jugador requerirJugador(UUID usuarioId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado: " + usuarioId));
+        return jugadorFacadeBinder.vincular(usuario);
     }
 }

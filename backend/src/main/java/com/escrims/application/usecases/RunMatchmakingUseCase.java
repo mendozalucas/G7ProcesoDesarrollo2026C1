@@ -3,6 +3,7 @@ package com.escrims.application.usecases;
 import com.escrims.domain.model.postulacion.EstadoPostulacion;
 import com.escrims.domain.model.postulacion.Postulacion;
 import com.escrims.domain.model.scrim.Scrim;
+import com.escrims.domain.model.usuario.Jugador;
 import com.escrims.domain.model.usuario.Usuario;
 import com.escrims.domain.observer.DomainEventBus;
 import com.escrims.domain.repository.PostulacionRepository;
@@ -50,6 +51,12 @@ public class RunMatchmakingUseCase {
         List<Usuario> seleccionados = matchmakingService.getEstrategia().seleccionar(context);
         if (seleccionados.isEmpty()) {
             throw new IllegalStateException("La estrategia de matchmaking no seleccionó jugadores");
+        }
+
+        for (Usuario usuario : seleccionados) {
+            if (usuario instanceof Jugador jugador) {
+                scrim.getLobby().getGestorLobby().balancearEquipos(jugador);
+            }
         }
 
         Set<UUID> idsSeleccionados = seleccionados.stream()

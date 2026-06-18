@@ -2,15 +2,15 @@ package com.escrims.infrastructure.persistence.jpa.mapper;
 
 import com.escrims.domain.model.juego.JuegoFactory;
 import com.escrims.domain.model.scrim.Scrim;
+import com.escrims.domain.model.usuario.Jugador;
 import com.escrims.domain.model.usuario.Usuario;
 import com.escrims.domain.repository.UsuarioRepository;
 import com.escrims.domain.state.ScrimStateFactory;
+import com.escrims.domain.valueobjects.FormatoScrim;
 import com.escrims.domain.valueobjects.Rango;
 import com.escrims.domain.valueobjects.Region;
 import com.escrims.infrastructure.persistence.jpa.entity.ScrimEntity;
 import org.springframework.stereotype.Component;
-
-import java.util.UUID;
 
 @Component
 public class ScrimEntityMapper {
@@ -22,17 +22,26 @@ public class ScrimEntityMapper {
     }
 
     public Scrim toDomain(ScrimEntity entity) {
-        Usuario organizador = usuarioRepository.findById(entity.getOrganizadorId())
-                .orElseGet(() -> new Usuario(entity.getOrganizadorId(), "organizador", "", ""));
+        Usuario organizadorUsuario = usuarioRepository.findById(entity.getOrganizadorId())
+                .orElseGet(() -> new Jugador(entity.getOrganizadorId(), "organizador", "", ""));
+        Jugador organizador = organizadorUsuario instanceof Jugador j
+                ? j
+                : new Jugador(organizadorUsuario.getId(), organizadorUsuario.getUsername(),
+                organizadorUsuario.getEmail(), organizadorUsuario.getPasswordHash());
 
         String regionNombre = entity.getRegionServidor();
         if (entity.getRegionZona() != null && !entity.getRegionZona().isBlank()) {
             regionNombre = entity.getRegionServidor() + "/" + entity.getRegionZona();
         }
 
+        FormatoScrim formato = new FormatoScrim(entity.getJugadoresPorLado() > 0 ? entity.getJugadoresPorLado() : 5);
+        String modalidad = entity.getModalidad() != null ? entity.getModalidad() : "CASUAL";
+
         Scrim scrim = new Scrim(
                 entity.getId(),
                 JuegoFactory.para(entity.getJuego()),
+                formato,
+                modalidad,
                 organizador,
                 new Region(null, regionNombre),
                 new Rango(null, entity.getRangoMinTier(), entity.getRangoMinNumerico()),
@@ -50,6 +59,8 @@ public class ScrimEntityMapper {
         ScrimEntity entity = new ScrimEntity();
         entity.setId(scrim.getId());
         entity.setJuego(scrim.getJuego().getNombre());
+        entity.setJugadoresPorLado(scrim.getFormato().getJugadoresPorLado());
+        entity.setModalidad(scrim.getModalidad());
 
         String regionNombre = scrim.getRegion().getNombre();
         String servidor = regionNombre;

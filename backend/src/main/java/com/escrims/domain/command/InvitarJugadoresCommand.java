@@ -1,23 +1,29 @@
 package com.escrims.domain.command;
 
-import com.escrims.domain.model.scrim.Scrim;
-import com.escrims.domain.model.usuario.Usuario;
+import com.escrims.domain.model.lobby.GestorLobby;
+import com.escrims.domain.model.usuario.Jugador;
 
-public class InvitarJugadoresCommand implements ScrimCommand {
+public class InvitarJugadoresCommand implements LobbyCommand {
 
-    private Usuario usuario;
+    private final Jugador jugador;
+    private boolean invitado;
 
-    public InvitarJugadoresCommand(Usuario usuario) {
-        this.usuario = usuario;
+    public InvitarJugadoresCommand(Jugador jugador) {
+        this.jugador = jugador;
     }
 
     @Override
-    public void ejecutar(Scrim scrim) {
-        throw new UnsupportedOperationException("InvitarJugadoresCommand.ejecutar no implementado");
+    public void ejecutar(GestorLobby gestorLobby) {
+        invitado = !gestorLobby.contieneJugador(jugador);
+        if (invitado) {
+            gestorLobby.invitarJugador(jugador);
+        }
     }
 
     @Override
-    public void deshacer(Scrim scrim) {
-        throw new UnsupportedOperationException("InvitarJugadoresCommand.deshacer no implementado");
+    public void deshacer(GestorLobby gestorLobby) {
+        if (invitado) {
+            gestorLobby.quitarJugador(jugador);
+        }
     }
 }

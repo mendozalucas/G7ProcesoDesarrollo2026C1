@@ -1,6 +1,7 @@
 package com.escrims.application.usecases;
 
-import com.escrims.domain.model.usuario.Usuario;
+import com.escrims.domain.model.usuario.Jugador;
+import com.escrims.domain.model.usuario.factory.FactoryJugador;
 import com.escrims.domain.repository.UsuarioRepository;
 import com.escrims.infrastructure.security.PasswordHasher;
 import org.springframework.stereotype.Service;
@@ -11,9 +12,11 @@ import java.util.UUID;
 public class OAuthLoginUseCase {
 
     private final UsuarioRepository usuarioRepository;
+    private final FactoryJugador factoryJugador;
 
-    public OAuthLoginUseCase(UsuarioRepository usuarioRepository) {
+    public OAuthLoginUseCase(UsuarioRepository usuarioRepository, FactoryJugador factoryJugador) {
         this.usuarioRepository = usuarioRepository;
+        this.factoryJugador = factoryJugador;
     }
 
     public UUID execute(String proveedorNombre, String externalId, String email, String username) {
@@ -22,7 +25,7 @@ public class OAuthLoginUseCase {
                 : proveedorNombre.toLowerCase() + "_" + externalId + "@oauth.local";
 
         return usuarioRepository.findByEmail(resolvedEmail)
-                .map(Usuario::getId)
+                .map(u -> u.getId())
                 .orElseGet(() -> crearUsuario(proveedorNombre, externalId, resolvedEmail, username));
     }
 
@@ -35,13 +38,13 @@ public class OAuthLoginUseCase {
             resolvedUsername = resolvedUsername + "_" + UUID.randomUUID().toString().substring(0, 8);
         }
 
-        Usuario usuario = new Usuario(
+        Jugador jugador = factoryJugador.crearUsuario(
                 UUID.randomUUID(),
                 resolvedUsername,
                 email,
                 PasswordHasher.hash(UUID.randomUUID().toString()));
-        usuario.setVerificado(true);
-        usuarioRepository.save(usuario);
-        return usuario.getId();
+        jugador.setVerificado(true);
+        usuarioRepository.save(jugador);
+        return jugador.getId();
     }
 }
