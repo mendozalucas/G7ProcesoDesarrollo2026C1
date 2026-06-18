@@ -1,6 +1,5 @@
 package com.escrims.application.usecases;
 
-import com.escrims.domain.model.scrim.Confirmacion;
 import com.escrims.domain.model.scrim.Scrim;
 import com.escrims.domain.model.usuario.Jugador;
 import com.escrims.domain.model.usuario.Usuario;
@@ -35,7 +34,13 @@ public class ConfirmParticipationUseCase {
         Scrim scrim = scrimRepository.findById(scrimId)
                 .orElseThrow(() -> new IllegalArgumentException("Scrim no encontrado: " + scrimId));
 
-        new Confirmacion(null, jugador, scrim, true);
+        scrim.getLobby().confirmarParticipacion(jugador, scrim);
+
+        if (scrim.getLobby().todosConfirmados()) {
+            scrim.avanzarEstado();
+        }
+
+        scrimRepository.save(scrim);
         scrim.recolectarEventos().forEach(eventBus::publish);
     }
 }

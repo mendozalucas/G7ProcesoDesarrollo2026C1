@@ -1,6 +1,9 @@
 package com.escrims.infrastructure.persistence.jpa.mapper;
 
 import com.escrims.domain.model.juego.JuegoFactory;
+import com.escrims.domain.model.lobby.GestorLobby;
+import com.escrims.domain.model.rol.Rol;
+import com.escrims.domain.model.scrim.Confirmacion;
 import com.escrims.domain.model.scrim.Scrim;
 import com.escrims.domain.model.usuario.Jugador;
 import com.escrims.domain.model.usuario.Usuario;
@@ -9,8 +12,14 @@ import com.escrims.domain.state.ScrimStateFactory;
 import com.escrims.domain.valueobjects.FormatoScrim;
 import com.escrims.domain.valueobjects.Rango;
 import com.escrims.domain.valueobjects.Region;
+import com.escrims.infrastructure.persistence.jpa.entity.ConfirmacionEmbeddable;
+import com.escrims.infrastructure.persistence.jpa.entity.ParticipanteEmbeddable;
 import com.escrims.infrastructure.persistence.jpa.entity.ScrimEntity;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.UUID;
 
 @Component
 public class ScrimEntityMapper {
@@ -52,12 +61,19 @@ public class ScrimEntityMapper {
         if (entity.getEstado() != null) {
             scrim.cambiarEstado(ScrimStateFactory.para(entity.getEstado()));
         }
+
+        restaurarLobby(scrim, entity);
         return scrim;
     }
 
     public ScrimEntity toEntity(Scrim scrim) {
         ScrimEntity entity = new ScrimEntity();
         entity.setId(scrim.getId());
+        populateEntity(entity, scrim);
+        return entity;
+    }
+
+    public void populateEntity(ScrimEntity entity, Scrim scrim) {
         entity.setJuego(scrim.getJuego().getNombre());
         entity.setJugadoresPorLado(scrim.getFormato().getJugadoresPorLado());
         entity.setModalidad(scrim.getModalidad());
@@ -81,6 +97,78 @@ public class ScrimEntityMapper {
         entity.setEstado(scrim.getEstadoNombre());
         entity.setMotivoCancelacion(scrim.getMotivoCancelacion());
         entity.setOrganizadorId(scrim.getOrganizador().getId());
-        return entity;
+
+        entity.setParticipantes(mapParticipantes(scrim));
+        entity.setConfirmaciones(mapConfirmaciones(scrim));
+    }
+
+    private void restaurarLobby(Scrim scrim, ScrimEntity entity) {
+        GestorLobby gestor = scrim.getLobby().getGestorLobby();
+
+        for (ParticipanteEmbeddable p : entity.getParticipantes()) {
+            Jugador jugador = cargarJugador(p.getUsuarioId());
+            if ("A".equalsIgnoreCase(p.getLado())) {
+                gestor.getEquipoA().agregarJugador(jugador);
+            } else {
+                gestor.getEquipoB().agregarJugador(jugador);
+            }
+            if (p.getRolNombre() != null && !p.getRolNombre().isBlank()) {
+                gestor.asignarRol(jugador, new Rol(null, p.getRolNombre()));
+            }
+        }
+
+        for (ConfirmacionEmbeddable c : entity.getConfirmaciones()) {
+            Jugador jugador = cargarJugador(c.getUsuarioId());
+            Confirmacion confirmacion = scrim.getLobby().agregarConfirmacion(jugador, scrim);
+            if (c.isConfirmado()) {
+                confirmacion.confirmar();
+            }
+        }
+    }
+
+    private ArrayList<ParticipanteEmbeddable> mapParticipantes(Scrim scrim) {
+        ArrayList<ParticipanteEmbeddable> participantes = new ArrayList<>();
+        GestorLobby gestor = scrim.getLobby().getGestorLobby();
+        String juego = scrim.getJuego().getNombre();
+
+        gestor.getEquipoA().getJugadores().forEach(j ->
+                participantes.add(toParticipanteEmb("A", j, gestor.getRolDe(j), juego)));
+        gestor.getEquipoB().getJugadores().forEach(j ->
+                participantes.add(toParticipanteEmb("B", j, gestor.getRolDe(j), juego)));
+        return participantes;
+    }
+
+    private ParticipanteEmbeddable toParticipanteEmb(String lado, Jugador jugador, Rol rol, String juego) {
+        ParticipanteEmbeddable p = new ParticipanteEmbeddable();
+        p.setLado(lado);
+        p.setUsuarioId(jugador.getId());
+        p.setRolJuego(juego);
+        if (rol != null) {
+            p.setRolNombre(rol.getNombre());
+        }
+        return p;
+    }
+
+    private ArrayList<ConfirmacionEmbeddable> mapConfirmaciones(Scrim scrim) {
+        ArrayList<ConfirmacionEmbeddable> confirmaciones = new ArrayList<>();
+        for (Confirmacion c : scrim.getLobby().getConfirmaciones()) {
+            ConfirmacionEmbeddable emb = new ConfirmacionEmbeddable();
+            emb.setUsuarioId(c.getJugador().getId());
+            emb.setConfirmado(c.isConfirmado());
+            if (c.isConfirmado()) {
+                emb.setFechaConfirmacion(LocalDateTime.now());
+            }
+            confirmaciones.add(emb);
+        }
+        return confirmaciones;
+    }
+
+    private Jugador cargarJugador(UUID usuarioId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseGet(() -> new Jugador(usuarioId, "jugador", "", ""));
+        if (usuario instanceof Jugador jugador) {
+            return jugador;
+        }
+        return new Jugador(usuario.getId(), usuario.getUsername(), usuario.getEmail(), usuario.getPasswordHash());
     }
 }

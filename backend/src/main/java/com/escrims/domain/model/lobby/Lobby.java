@@ -39,13 +39,43 @@ public class Lobby {
         return confirmacion;
     }
 
+    public void inicializarConfirmaciones(Scrim scrim) {
+        confirmaciones.clear();
+        gestorLobby.getEquipoA().getJugadores().forEach(j -> agregarConfirmacion(j, scrim));
+        gestorLobby.getEquipoB().getJugadores().forEach(j -> agregarConfirmacion(j, scrim));
+    }
+
+    public Confirmacion confirmarParticipacion(Jugador jugador, Scrim scrim) {
+        if (!getParticipantes().contains(jugador.getId())) {
+            throw new IllegalStateException(
+                    "Este usuario no está en el lobby. Solo pueden confirmar quienes entraron al armar el lobby.");
+        }
+        if (!"LOBBY_ARMADO".equalsIgnoreCase(scrim.getEstadoNombre())) {
+            throw new IllegalStateException("Solo se puede confirmar cuando el lobby está armado");
+        }
+        Confirmacion confirmacion = confirmaciones.stream()
+                .filter(c -> c.getJugador().getId().equals(jugador.getId()))
+                .findFirst()
+                .orElseGet(() -> agregarConfirmacion(jugador, scrim));
+        if (confirmacion.isConfirmado()) {
+            throw new IllegalStateException("El jugador ya confirmó su participación");
+        }
+        confirmacion.confirmar();
+        return confirmacion;
+    }
+
     public boolean cupoCompleto() {
         int total = gestorLobby.getEquipoA().getCuposOcupados() + gestorLobby.getEquipoB().getCuposOcupados();
         return total >= formato.getTotalJugadores();
     }
 
     public boolean todosConfirmados() {
-        return !confirmaciones.isEmpty() && confirmaciones.stream().allMatch(Confirmacion::isConfirmado);
+        List<UUID> participantes = getParticipantes();
+        if (participantes.isEmpty()) {
+            return false;
+        }
+        return confirmaciones.size() == participantes.size()
+                && confirmaciones.stream().allMatch(Confirmacion::isConfirmado);
     }
 
     public UUID getScrimId() { return scrimId; }

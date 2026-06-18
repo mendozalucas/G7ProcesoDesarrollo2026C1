@@ -65,6 +65,7 @@ public class RunMatchmakingUseCase {
 
         scrim.registrarParticipantesLobby(idsSeleccionados.stream().toList());
         actualizarPostulaciones(scrimId, idsSeleccionados);
+        scrim.getLobby().inicializarConfirmaciones(scrim);
         scrim.avanzarEstado();
 
         scrimRepository.save(scrim);

@@ -9,7 +9,6 @@ import com.escrims.domain.model.usuario.factory.FactoryJugador;
 import com.escrims.domain.model.usuario.factory.FactoryModerador;
 import com.escrims.domain.repository.UsuarioRepository;
 import com.escrims.domain.valueobjects.Rango;
-import com.escrims.infrastructure.persistence.jpa.ScrimJpaRepository;
 import com.escrims.infrastructure.persistence.jpa.UsuarioJpaRepository;
 import com.escrims.infrastructure.persistence.jpa.entity.PerfilEmbeddable;
 import com.escrims.infrastructure.security.PasswordHasher;
@@ -19,6 +18,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -39,7 +39,6 @@ public class DevDataSeeder implements ApplicationRunner {
     private final UsuarioRepository usuarioRepository;
     private final CreateScrimUseCase createScrimUseCase;
     private final ApplyToScrimUseCase applyToScrimUseCase;
-    private final ScrimJpaRepository scrimJpaRepository;
     private final UsuarioJpaRepository usuarioJpaRepository;
     private final FactoryJugador factoryJugador;
     private final FactoryModerador factoryModerador;
@@ -47,20 +46,19 @@ public class DevDataSeeder implements ApplicationRunner {
     public DevDataSeeder(UsuarioRepository usuarioRepository,
                          CreateScrimUseCase createScrimUseCase,
                          ApplyToScrimUseCase applyToScrimUseCase,
-                         ScrimJpaRepository scrimJpaRepository,
                          UsuarioJpaRepository usuarioJpaRepository,
                          FactoryJugador factoryJugador,
                          FactoryModerador factoryModerador) {
         this.usuarioRepository = usuarioRepository;
         this.createScrimUseCase = createScrimUseCase;
         this.applyToScrimUseCase = applyToScrimUseCase;
-        this.scrimJpaRepository = scrimJpaRepository;
         this.usuarioJpaRepository = usuarioJpaRepository;
         this.factoryJugador = factoryJugador;
         this.factoryModerador = factoryModerador;
     }
 
     @Override
+    @Transactional
     public void run(ApplicationArguments args) {
         if (usuarioRepository.findByEmail(SEED_MARKER_EMAIL).isPresent()) {
             log.info("Datos de demo ya cargados ({}), se omite el seed.", SEED_MARKER_EMAIL);
@@ -104,10 +102,6 @@ public class DevDataSeeder implements ApplicationRunner {
                            String passwordHash,
                            List<DriverSeed> drivers) {
         UUID scrimId = createScrimUseCase.execute(crearScrimDto(juego, servidor, zona, organizadorId));
-        scrimJpaRepository.findById(scrimId).ifPresent(entity -> {
-            entity.setJugadoresPorLado(2);
-            scrimJpaRepository.save(entity);
-        });
         for (DriverSeed driver : drivers) {
             Usuario usuario = guardarDriver(driver, juego, servidor, zona, passwordHash);
             applyToScrimUseCase.execute(usuario.getId(), scrimId, driver.rol());
@@ -118,6 +112,7 @@ public class DevDataSeeder implements ApplicationRunner {
     private static CreateScrimDTO crearScrimDto(String juego, String servidor, String zona, UUID organizadorId) {
         CreateScrimDTO dto = new CreateScrimDTO();
         dto.setJuego(juego);
+        dto.setJugadoresPorLado(2);
         dto.setServidor(servidor);
         dto.setZona(zona);
         dto.setRangoMin(new Rango(null, "Gold", 1500));

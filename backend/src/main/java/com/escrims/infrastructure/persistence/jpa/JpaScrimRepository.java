@@ -14,6 +14,7 @@ import com.escrims.domain.valueobjects.CriteriosBusqueda;
 import com.escrims.domain.valueobjects.MatchmakingContext;
 
 import com.escrims.infrastructure.persistence.jpa.entity.PostulacionEntity;
+import com.escrims.infrastructure.persistence.jpa.entity.ScrimEntity;
 
 import com.escrims.infrastructure.persistence.jpa.mapper.ScrimEntityMapper;
 
@@ -93,7 +94,17 @@ public class JpaScrimRepository implements ScrimRepository {
 
     public Scrim save(Scrim scrim) {
 
-        return mapper.toDomain(jpaRepository.save(mapper.toEntity(scrim)));
+        ScrimEntity entity = jpaRepository.findById(scrim.getId()).orElseGet(ScrimEntity::new);
+
+        if (entity.getId() == null) {
+
+            entity.setId(scrim.getId());
+
+        }
+
+        mapper.populateEntity(entity, scrim);
+
+        return mapper.toDomain(jpaRepository.save(entity));
 
     }
 
